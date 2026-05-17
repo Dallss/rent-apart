@@ -39,3 +39,11 @@ jobs:
       # 5. Push Docker image
       - name: Push image
         run: docker push $IMAGE
+        
+      - name: Trigger infra deploy
+        run: |
+          curl -X POST \
+            -H "Accept: application/vnd.github+json" \
+            -H "Authorization: Bearer ${{ secrets.INFRA_PAT }}" \
+            https://api.github.com/repos/Dallss/rentapart-infra/dispatches \
+            -d '{"event_type":"deploy"}'
