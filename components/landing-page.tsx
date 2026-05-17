@@ -51,8 +51,13 @@ export function LandingPage() {
       try {
         setLoading(true);
 
-        const res = await fetch("http://localhost:8000/api/listings/");
+         // 1. get runtime config first
+        const configRes = await fetch("/api/config");
+        const config = await configRes.json();
 
+        // 2. use runtime API URL
+        const res = await fetch(`${config.apiUrl}/api/listings/`);
+        
         if (!res.ok) {
           throw new Error("Failed to fetch listings");
         }
