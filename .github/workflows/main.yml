@@ -65,6 +65,8 @@ jobs:
           push: true
           tags: ghcr.io/${{ env.OWNER }}/rent-apart-frontend:latest
           platforms: linux/amd64,linux/arm64
+          build-args: |
+            NEXT_PUBLIC_GOOGLE_CLIENT_ID=${{ secrets.NEXT_PUBLIC_GOOGLE_CLIENT_ID }}
 
       # ------------------------------------------------------------
       # 6. Trigger infra deploy (self-hosted VM pulls new image)
