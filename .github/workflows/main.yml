@@ -53,12 +53,17 @@ jobs:
       # 5. Build + Push multi-arch image (ARM + AMD)
       #    IMPORTANT: replaces docker build + docker push
       # ------------------------------------------------------------
+
+      - name: Set lowercase owner
+        run: |
+          echo "OWNER=$(echo '${{ github.repository_owner }}' | tr '[:upper:]' '[:lower:]')" >> $GITHUB_ENV
+          
       - name: Build and push multi-arch image
         uses: docker/build-push-action@v5
         with:
           context: .
           push: true
-          tags: ghcr.io/${{ github.repository_owner }}/rent-apart-frontend:latest
+          tags: ghcr.io/${{ env.OWNER }}/rent-apart-frontend:latest
           platforms: linux/amd64,linux/arm64
 
       # ------------------------------------------------------------
