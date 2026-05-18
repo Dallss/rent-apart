@@ -1,4 +1,3 @@
-import { getPublicApiBaseUrl } from "@/lib/env";
 import { decodeJwtPayload, pickEmailFromPayload } from "@/lib/jwt-payload";
 
 const STORAGE_ACCESS = "ra_access_token";
@@ -35,11 +34,10 @@ function resolveEmail(data: GoogleAuthApiResponse, idToken: string): string | nu
 }
 
 export async function postGoogleIdToken(idToken: string): Promise<GoogleAuthApiResponse> {
-  const base = getPublicApiBaseUrl();
-  if (!base) {
-    throw new Error("NEXT_PUBLIC_API_BASE_URL is not set");
-  }
-  const res = await fetch(`${base}/api/auth/google/`, {
+  const configRes = await fetch("/api/config");
+  const config = await configRes.json();
+
+  const res = await fetch(`${config.apiUrl}/api/auth/google/`, {
     method: "POST",
     headers: { "Content-Type": "application/json", Accept: "application/json" },
     body: JSON.stringify({ id_token: idToken }),
