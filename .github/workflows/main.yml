@@ -8,6 +8,7 @@ on:
 jobs:
   build:
     runs-on: ubuntu-latest
+    environment: develop
 
     permissions:
       contents: read
@@ -18,7 +19,13 @@ jobs:
       - name: Checkout repository
         uses: actions/checkout@v4
 
-      # 2. Log in to GHCR
+      - name: Create .env.development
+        run: |
+          cat <<EOF > .env.development
+          NEXT_PUBLIC_GOOGLE_CLIENT_ID=${{ secrets.NEXT_PUBLIC_GOOGLE_CLIENT_ID }}
+          EOF
+
+      # 3. Log in to GHCR
       - name: Login to GHCR
         uses: docker/login-action@v3
         with:
@@ -26,20 +33,21 @@ jobs:
           username: ${{ github.actor }}
           password: ${{ secrets.GITHUB_TOKEN }}
 
-      # 3. Set image name
+      # 4. Set image name
       - name: Set image name
         run: |
           OWNER=$(echo "${{ github.repository_owner }}" | tr '[:upper:]' '[:lower:]')
           echo "IMAGE=ghcr.io/$OWNER/rent-apart-frontend:latest" >> $GITHUB_ENV
 
-      # 4. Build Docker image
+      # 5. Build Docker image
       - name: Build image
         run: docker build -t $IMAGE .
 
-      # 5. Push Docker image
+      # 6. Push Docker image
       - name: Push image
         run: docker push $IMAGE
-        
+
+      # 7. Trigger infra deploy
       - name: Trigger infra deploy
         run: |
           curl -X POST \
