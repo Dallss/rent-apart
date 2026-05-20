@@ -133,69 +133,51 @@ export default function HomePage() {
             <div className="sticky top-10 border border-border rounded-3xl p-6 shadow-lg bg-card">
 
               <div className="flex items-end gap-1 mb-6">
-                <span className="text-3xl font-semibold">₱4,500</span>
-                <span className="text-muted mb-1">night</span>
+                <span className="text-3xl font-semibold">₱22,500</span>
+                <span className="text-muted mb-1">month</span>
               </div>
 
-              {/* DATE BOX */}
-              <div className="border border-border rounded-2xl overflow-hidden mb-4 text-sm bg-background">
-
-                <div className="grid grid-cols-2 divide-x divide-border">
-
-                  <div className="p-3">
-                    <p className="text-[10px] uppercase font-bold text-muted">
-                      Check-in
-                    </p>
-                    <p className="text-muted">Add date</p>
-                  </div>
-
-                  <div className="p-3">
-                    <p className="text-[10px] uppercase font-bold text-muted">
-                      Checkout
-                    </p>
-                    <p className="text-muted">Add date</p>
-                  </div>
-
+              {/* DATE & TIME BOX */}
+              {/* <div className="border border-border rounded-2xl overflow-hidden mb-4 text-sm bg-background">
+                <div className="p-3">
+                  <p className="text-muted">Select date & time</p>
                 </div>
-
-                <div className="p-3 border-t border-border">
-                  <p className="text-[10px] uppercase font-bold text-muted">
-                    Guests
-                  </p>
-                  <p className="text-muted">1 guest</p>
-                </div>
-
-              </div>
+              </div> */}
 
               <button className="w-full bg-rose-500 hover:bg-rose-600 transition-colors text-white font-medium py-3 rounded-2xl">
-                Reserve
+                Schedule a Tour
               </button>
 
               <p className="text-center text-xs text-muted mt-3">
-                You won’t be charged yet
+                Monthly breakdown
               </p>
 
               {/* PRICE BREAKDOWN */}
               <div className="mt-6 space-y-3 text-sm">
 
                 <div className="flex justify-between text-muted">
-                  <span className="underline">₱4,500 × 5 nights</span>
-                  <span>₱22,500</span>
+                  <span className="underline">Monthly rent</span>
+                  <span>₱18,000</span>
                 </div>
 
                 <div className="flex justify-between text-muted">
-                  <span className="underline">Cleaning fee</span>
-                  <span>₱1,200</span>
+                  <span className="underline">Association dues</span>
+                  <span>₱1,500</span>
                 </div>
 
                 <div className="flex justify-between text-muted">
-                  <span className="underline">Service fee</span>
-                  <span>₱1,100</span>
+                  <span className="underline">Utilities (estimated)</span>
+                  <span>₱2,000</span>
+                </div>
+
+                <div className="flex justify-between text-muted">
+                  <span className="underline">Internet fee</span>
+                  <span>₱1,000</span>
                 </div>
 
                 <div className="border-t border-border pt-3 flex justify-between font-semibold">
-                  <span>Total</span>
-                  <span>₱24,800</span>
+                  <span>Total monthly payment</span>
+                  <span>₱22,500</span>
                 </div>
 
               </div>
