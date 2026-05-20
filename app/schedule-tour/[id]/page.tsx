@@ -130,6 +130,36 @@ export default function BookingPage() {
 
       <div className="max-w-2xl mx-auto px-4 py-8">
 
+        <button
+          onClick={() => {
+            if (step === 1) {
+              window.history.back();
+            } else {
+              setStep((prev) => (prev - 1) as 1 | 2);
+            }
+          }}
+          className="
+            flex items-center gap-1 text-sm mb-5
+            hover:text-foreground
+            hover:bg-black/10
+            rounded-full
+            px-3 py-1.5
+            transition-all duration-150
+          "
+        >
+          <svg width="16" height="16" viewBox="0 0 16 16" fill="none">
+            <path
+              d="M10 12L6 8L10 4"
+              stroke="currentColor"
+              strokeWidth="1.5"
+              strokeLinecap="round"
+              strokeLinejoin="round"
+            />
+          </svg>
+
+          Back
+        </button>
+
         {/* STEP 1 — Date & Time */}
         {step === 1 && (
           <div>
@@ -246,16 +276,6 @@ export default function BookingPage() {
         {/* STEP 2 — Details */}
         {step === 2 && (
           <div>
-            <button
-              onClick={() => setStep(1)}
-              className="flex items-center gap-1 text-sm text-[#888] mb-5 hover:text-[#1a1a1a] transition-colors"
-            >
-              <svg width="16" height="16" viewBox="0 0 16 16" fill="none">
-                <path d="M10 12L6 8L10 4" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"/>
-              </svg>
-              Back
-            </button>
-
             {/* Booking summary pill */}
             <div className="inline-flex items-center gap-2 bg-white border border-[#ebe8e2] rounded-full px-4 py-2 mb-6">
               <svg width="14" height="14" viewBox="0 0 14 14" fill="none">

@@ -95,7 +95,7 @@ export function AuthToolbar() {
   const showConfigHint = ready && !clientId;
 
   return (
-    <header className="sticky top-0 z-20 border-border bg-background/90 px-4 py-3 backdrop-blur-md">
+    <header className="sticky top-0 z-20 border-border bg-background/90 px-4 py-3 backdrop-blur-md h-[100px]">
       <div className="mx-auto flex w-full max-w-5xl flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
 
         {/* LEFT */}
