@@ -1,7 +1,6 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import { AuthToolbar } from "@/components/auth-toolbar";
 
 type ApiListing = {
   id: number;
@@ -41,7 +40,7 @@ function formatRent(n: number) {
   }).format(n);
 }
 
-export function LandingPage() {
+export function AllListings() {
   const [listings, setListings] = useState<Listing[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
@@ -51,7 +50,7 @@ export function LandingPage() {
       try {
         setLoading(true);
 
-         // 1. get runtime config first
+        // 1. get runtime config first
         const configRes = await fetch("/api/config");
         const config = await configRes.json();
 
@@ -88,8 +87,6 @@ export function LandingPage() {
 
   return (
     <div className="flex min-h-full flex-col">
-      <AuthToolbar />
-
       <main className="mx-auto w-full max-w-5xl flex-1 px-4 py-8">
         <div className="mb-8">
           <h1 className="text-2xl font-semibold tracking-tight sm:text-3xl">

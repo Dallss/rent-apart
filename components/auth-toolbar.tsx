@@ -16,24 +16,25 @@ function AuthStatusPill({
 }) {
   if (!ready) {
     return (
-      <span className="inline-flex max-w-[min(100%,18rem)] items-center rounded-full border border-zinc-200 bg-zinc-50 px-3 py-1 text-xs font-medium text-zinc-500 dark:border-zinc-800 dark:bg-zinc-900 dark:text-zinc-400">
+      <span className="inline-flex max-w-[18rem] items-center rounded-full border border-border bg-card px-3 py-1 text-xs font-medium text-muted">
         Checking session…
       </span>
     );
   }
+
   if (isSignedIn) {
-    const label = userEmail ?? "Signed in";
     return (
       <span
-        className="inline-flex max-w-[min(100%,18rem)] items-center truncate rounded-full border border-emerald-200 bg-emerald-50 px-3 py-1 text-xs font-medium text-emerald-900 dark:border-emerald-900 dark:bg-emerald-950/60 dark:text-emerald-100"
+        className="inline-flex max-w-[18rem] truncate rounded-full border border-emerald-500/30 bg-emerald-500/10 px-3 py-1 text-xs font-medium text-foreground"
         title={userEmail ?? undefined}
       >
-        {label}
+        {userEmail ?? "Signed in"}
       </span>
     );
   }
+
   return (
-    <span className="inline-flex items-center rounded-full border border-zinc-200 bg-zinc-100 px-3 py-1 text-xs font-medium text-zinc-700 dark:border-zinc-700 dark:bg-zinc-800 dark:text-zinc-200">
+    <span className="inline-flex items-center rounded-full border border-border bg-card px-3 py-1 text-xs font-medium text-muted">
       Signed out
     </span>
   );
@@ -53,8 +54,10 @@ function GoogleSignInSlot({ disabled }: { disabled: boolean }) {
 
   useEffect(() => {
     if (disabled || isSignedIn || !clientId || !btnRef.current) return;
+
     const el = btnRef.current;
     el.innerHTML = "";
+
     const g = window.google;
     if (!g?.accounts?.id) return;
 
@@ -62,6 +65,7 @@ function GoogleSignInSlot({ disabled }: { disabled: boolean }) {
       client_id: clientId,
       callback: handleCredential,
     });
+
     g.accounts.id.renderButton(el, {
       type: "standard",
       theme: "outline",
@@ -77,55 +81,74 @@ function GoogleSignInSlot({ disabled }: { disabled: boolean }) {
   }, [disabled, isSignedIn, clientId, handleCredential]);
 
   if (isSignedIn || !clientId) return null;
-  return <div ref={btnRef} className="flex min-h-[40px] items-center [&>div]:!m-0" />;
+
+  return <div ref={btnRef} className="flex min-h-[40px]" />;
 }
 
 export function AuthToolbar() {
-  const { ready, isSignedIn, userEmail, authError, clearAuthError, signOut } = useAuth();
+  const { ready, isSignedIn, userEmail, authError, clearAuthError, signOut } =
+    useAuth();
+
   const [gsiReady, setGsiReady] = useState(false);
   const clientId = getGoogleClientId();
+
   const showConfigHint = ready && !clientId;
 
   return (
-    <header className="sticky top-0 z-20 border-b border-zinc-200/80 bg-background/90 px-4 py-3 backdrop-blur-md dark:border-zinc-800/80">
+    <header className="sticky top-0 z-20 border-border bg-background/90 px-4 py-3 backdrop-blur-md">
       <div className="mx-auto flex w-full max-w-5xl flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
+
+        {/* LEFT */}
         <div className="flex flex-wrap items-center gap-3">
-          <span className="text-sm font-semibold tracking-tight text-foreground">Rent Apart</span>
-          <AuthStatusPill ready={ready} isSignedIn={isSignedIn} userEmail={userEmail} />
+          <span className="text-sm font-semibold text-foreground">
+            Rent Apart
+          </span>
+
+          <AuthStatusPill
+            ready={ready}
+            isSignedIn={isSignedIn}
+            userEmail={userEmail}
+          />
         </div>
+
+        {/* RIGHT */}
         <div className="flex flex-wrap items-center gap-2 sm:justify-end">
-          {authError ? (
-            <div className="flex max-w-md flex-col gap-1 text-xs sm:items-end">
-              <span className="rounded-md border border-red-200 bg-red-50 px-2 py-1 text-red-800 dark:border-red-900 dark:bg-red-950/50 dark:text-red-200">
+
+          {authError && (
+            <div className="flex max-w-md flex-col gap-1 text-xs">
+              <span className="rounded-md border border-red-500/30 bg-red-500/10 px-2 py-1 text-red-400">
                 {authError}
               </span>
+
               <button
-                type="button"
                 onClick={clearAuthError}
-                className="text-left text-zinc-500 underline decoration-zinc-300 underline-offset-2 hover:text-foreground sm:text-right"
+                className="text-muted underline underline-offset-2 hover:text-foreground"
               >
                 Dismiss
               </button>
             </div>
-          ) : null}
-          {showConfigHint ? (
-            <span className="text-xs text-amber-800 dark:text-amber-200">
+          )}
+
+          {showConfigHint && (
+            <span className="text-xs text-amber-500">
               Set NEXT_PUBLIC_GOOGLE_CLIENT_ID for Google sign-in.
             </span>
-          ) : null}
-          {isSignedIn ? (
+          )}
+
+          {isSignedIn && (
             <button
-              type="button"
               onClick={signOut}
-              className="rounded-full border border-zinc-300 px-4 py-2 text-sm font-medium text-foreground transition hover:bg-zinc-100 dark:border-zinc-600 dark:hover:bg-zinc-900"
+              className="rounded-full border border-border px-4 py-2 text-sm font-medium text-foreground hover:bg-card transition"
             >
               Sign out
             </button>
-          ) : null}
+          )}
+
           <GoogleSignInSlot disabled={!gsiReady} />
         </div>
       </div>
-      {!clientId ? null : (
+
+      {clientId && (
         <Script
           src="https://accounts.google.com/gsi/client"
           strategy="afterInteractive"
