@@ -1,6 +1,7 @@
 "use client";
 
 import { useState } from "react";
+import Link from "next/link";
 
 // ─── Types ────────────────────────────────────────────────────────────────────
 
@@ -101,25 +102,19 @@ export default function BookingPage() {
             {MONTH_NAMES[calMonth]} {selectedDate?.day}, {calYear} at {selectedTime}
           </p>
           <div className="bg-white border border-[#ebe8e2] rounded-2xl p-5 text-left mb-6">
-            <p className="text-sm font-semibold text-[#1a1a1a] mb-1">WWORKSHOP.STUDIO</p>
-            <p className="text-sm text-[#888]">#3 Molave Street, Cebu City</p>
+            <p className="text-sm font-semibold text-[#1a1a1a] mb-1">RentApart</p>
+            {/* <p className="text-sm text-[#888]">#3 Molave Street, Cebu City</p> */}
             <p className="text-sm text-[#888] mt-3">
               A confirmation has been sent to{" "}
               <span className="text-[#1a1a1a]">{form.email}</span>
             </p>
           </div>
-          <button
-            onClick={() => {
-              setBooked(false);
-              setStep(1);
-              setSelectedDate(null);
-              setSelectedTime("");
-              setForm({ name: "", email: "", phone: "", notes: "" });
-            }}
+          <Link
+            href="/"
             className="text-sm text-[#1a1a1a] underline underline-offset-4"
           >
-            Book another appointment
-          </button>
+            Return to Home
+          </Link>
         </div>
       </div>
     );

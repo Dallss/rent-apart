@@ -2,6 +2,7 @@
 
 import { notFound } from "next/navigation";
 import Images from "@/components/listing-view/images";
+import Link from "next/link";
 
 interface ListingImage {
   id: number;
@@ -176,9 +177,12 @@ export default async function ListingDetailPage({
                 <span className="text-muted mb-1">/ month</span>
               </div>
 
-              <button className="w-full bg-rose-500 hover:bg-rose-600 transition-colors text-white font-medium py-3 rounded-2xl">
+              <Link
+                href="/schedule-tour" 
+                className="block text-center w-full bg-rose-500 hover:bg-rose-600 transition-colors text-white font-medium py-3 rounded-2xl"
+              >
                 Schedule a Tour
-              </button>
+              </Link>
 
               <p className="text-center text-xs text-muted mt-3">
                 Monthly breakdown
