@@ -20,6 +20,8 @@ type AuthContextValue = {
   ready: boolean;
   isSignedIn: boolean;
   userEmail: string | null;
+  isHost: boolean;
+  canManageLeases: boolean;
   authError: string | null;
   clearAuthError: () => void;
   signInWithGoogleCredential: (credential: string) => Promise<void>;
@@ -32,13 +34,15 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   const [ready, setReady] = useState(false);
   const [isSignedIn, setIsSignedIn] = useState(false);
   const [userEmail, setUserEmail] = useState<string | null>(null);
+  const [canManageLeases, setCanManageLeases] = useState(false);
   const [authError, setAuthError] = useState<string | null>(null);
 
   useEffect(() => {
     startTransition(() => {
-      const { accessToken, email } = readStoredSession();
+      const { accessToken, email, canManageLeases } = readStoredSession();
       setIsSignedIn(Boolean(accessToken));
       setUserEmail(email);
+      setCanManageLeases(canManageLeases);
       setReady(true);
     });
   }, []);
@@ -50,9 +54,10 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     try {
       const data = await postGoogleIdToken(credential);
       persistSession(data, credential);
-      const { accessToken, email } = readStoredSession();
+      const { accessToken, email, canManageLeases } = readStoredSession();
       setIsSignedIn(Boolean(accessToken));
       setUserEmail(email);
+      setCanManageLeases(canManageLeases);
     } catch (err) {
       const message = err instanceof Error ? err.message : "Sign-in failed";
       setAuthError(message);
@@ -63,6 +68,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     clearStoredSession();
     setIsSignedIn(false);
     setUserEmail(null);
+    setCanManageLeases(false);
     try {
       window.google?.accounts.id.disableAutoSelect();
     } catch {
@@ -75,12 +81,14 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
       ready,
       isSignedIn,
       userEmail,
+      isHost: canManageLeases,
+      canManageLeases,
       authError,
       clearAuthError,
       signInWithGoogleCredential,
       signOut,
     }),
-    [ready, isSignedIn, userEmail, authError, clearAuthError, signInWithGoogleCredential, signOut],
+    [ready, isSignedIn, userEmail, canManageLeases, authError, clearAuthError, signInWithGoogleCredential, signOut],
   );
 
   return <AuthContext.Provider value={value}>{children}</AuthContext.Provider>;

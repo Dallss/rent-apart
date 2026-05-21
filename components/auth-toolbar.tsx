@@ -4,6 +4,8 @@ import { useAuth } from "@/lib/auth-context";
 import { getGoogleClientId } from "@/lib/env";
 import Script from "next/script";
 import { useCallback, useEffect, useRef, useState } from "react";
+import Link from "next/link";
+import { usePathname } from "next/navigation";
 
 function AuthStatusPill({
   ready,
@@ -86,11 +88,12 @@ function GoogleSignInSlot({ disabled }: { disabled: boolean }) {
 }
 
 export function AuthToolbar() {
-  const { ready, isSignedIn, userEmail, authError, clearAuthError, signOut } =
+  const { ready, isSignedIn, userEmail, authError, clearAuthError, signOut, isHost } =
     useAuth();
 
   const [gsiReady, setGsiReady] = useState(false);
   const clientId = getGoogleClientId();
+  const pathname = usePathname();
 
   const showConfigHint = ready && !clientId;
 
@@ -100,9 +103,10 @@ export function AuthToolbar() {
 
         {/* LEFT */}
         <div className="flex flex-wrap items-center gap-3">
-          <span className="text-sm font-semibold text-foreground">
+          <Link
+              href="/" className="text-sm font-semibold text-foreground">
             Rent Apart
-          </span>
+          </Link>
 
           <AuthStatusPill
             ready={ready}
@@ -133,6 +137,26 @@ export function AuthToolbar() {
             <span className="text-xs text-amber-500">
               Set NEXT_PUBLIC_GOOGLE_CLIENT_ID for Google sign-in.
             </span>
+          )}
+
+          {isSignedIn && isHost && (
+            <button
+              onClick={() => {/* navigate to /manage */}}
+              className="rounded-full border border-emerald-500/40 bg-emerald-500/10 px-4 py-2 text-sm font-medium text-emerald-400 hover:bg-emerald-500/20 transition"
+            >
+              Manage properties
+            </button>
+          )}
+
+
+
+          {isSignedIn && !isHost && pathname !== "/become-a-host" && (
+            <Link
+              href="/become-a-host"
+              className="rounded-full border border-border px-4 py-2 text-sm font-medium text-foreground hover:bg-card transition"
+            >
+              Become a host
+            </Link>
           )}
 
           {isSignedIn && (
