@@ -1,6 +1,8 @@
 "use client";
+import Link from "next/link";
 
 import { useEffect, useState } from "react";
+import Listing from "./listing";
 
 type ApiListing = {
   id: number;
@@ -71,7 +73,7 @@ export function AllListings() {
           bedrooms: item.bedrooms,
           sqft: 0, // backend doesn’t provide yet
           blurb: item.description,
-          image: item.images?.[0]?.image,
+          image: item.hero_image,
         }));
 
         setListings(mapped);
@@ -86,16 +88,12 @@ export function AllListings() {
   }, []);
 
   return (
-    <div className="flex min-h-full flex-col">
-      <main className="mx-auto w-full max-w-5xl flex-1 px-4 py-8">
-        <div className="mb-8">
-          <h1 className="text-2xl font-semibold tracking-tight sm:text-3xl">
-            Browse apartments
+    <div className="flex min-h-full flex-col w-screen">
+      <main className="mx-auto w-full max-w-screen flex-1 px-4 py-8">
+        <div className="ml-3">
+          <h1 className="font-semibold tracking-tight sm:text-2xl">
+            Popular apartments
           </h1>
-
-          <p className="mt-2 max-w-2xl text-sm text-zinc-600 dark:text-zinc-400">
-            Live listings from backend (Django API).
-          </p>
         </div>
 
         {/* Loading state */}
@@ -112,61 +110,34 @@ export function AllListings() {
 
         {/* Listings */}
         {!loading && !error && (
-          <ul className="grid gap-5 sm:grid-cols-2 lg:grid-cols-3">
-            {listings.map((item) => (
-              <li key={item.id}>
-                <article className="flex h-full flex-col overflow-hidden rounded-2xl border border-zinc-200 bg-white shadow-sm transition hover:border-zinc-300 hover:shadow-md dark:border-zinc-800 dark:bg-zinc-950 dark:hover:border-zinc-700">
+          <ul className="flex w-full gap-4 overflow-x-auto overflow-y-hidden mb-5">
+          {listings.map((item) => (
+            <li key={item.id}>
+              <Link href={`/listings/${item.id}`}>
+                <Listing item={item} />
+              </Link>
+            </li>
+          ))}
+        </ul>
+        )}
 
-                  {/* Image */}
-                  <div className="aspect-[4/3] overflow-hidden bg-zinc-100 dark:bg-zinc-900">
-                    {item.image ? (
-                      <img
-                        src={item.image}
-                        alt={item.title}
-                        className="h-full w-full object-cover"
-                      />
-                    ) : (
-                      <div className="flex h-full items-center justify-center text-xs text-zinc-400">
-                        No image
-                      </div>
-                    )}
-                  </div>
+        <div className="ml-3">
+          <h1 className="font-semibold tracking-tight sm:text-2xl">
+            Apartments
+          </h1>
+        </div>
 
-                  {/* Content */}
-                  <div className="flex flex-1 flex-col gap-2 p-4">
-                    <h2 className="text-base font-semibold">
-                      {item.title}
-                    </h2>
-
-                    <p className="text-xs uppercase tracking-wide text-zinc-500 dark:text-zinc-400">
-                      {item.neighborhood}
-                    </p>
-
-                    <p className="text-sm text-zinc-600 dark:text-zinc-400">
-                      {item.blurb}
-                    </p>
-
-                    <dl className="mt-auto flex flex-wrap gap-x-4 gap-y-1 pt-2 text-xs text-zinc-500 dark:text-zinc-400">
-                      <div>
-                        <dd className="font-semibold text-foreground">
-                          {formatRent(item.rent)}
-                        </dd>
-                        <span className="text-zinc-500"> / mo</span>
-                      </div>
-
-                      <div>
-                        <dd>
-                          {item.bedrooms === 0
-                            ? "Studio"
-                            : `${item.bedrooms} bed`}
-                        </dd>
-                      </div>
-                    </dl>
-                  </div>
-                </article>
-              </li>
-            ))}
-          </ul>
+        {/* Listings */}
+        {!loading && !error && (
+          <ul className="flex w-full gap-4 overflow-x-auto overflow-y-hidden mb-5">
+          {listings.map((item) => (
+            <li key={item.id}>
+              <Link href={`/listings/${item.id}`}>
+                <Listing item={item} />
+              </Link>
+            </li>
+          ))}
+        </ul>
         )}
       </main>
     </div>

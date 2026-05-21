@@ -1,8 +1,68 @@
-// app/page.tsx
+// app/listings/[id]/page.tsx
 
+import { notFound } from "next/navigation";
 import Images from "@/components/listing-view/images";
 
-export default function HomePage() {
+interface ListingImage {
+  id: number;
+  image: string;
+  is_primary: boolean;
+  category: string;
+  caption: string;
+}
+
+interface Listing {
+  id: number;
+  title: string;
+  description: string;
+  address: string;
+  city: string;
+  monthly_rent: string;
+  bedrooms: number;
+  bathrooms: number;
+  amenities: string[];
+  caption: string;
+  rating: string;
+  is_available: boolean;
+  created_at: string;
+  updated_at: string;
+  images: ListingImage[];
+}
+
+async function getListing(id: string): Promise<Listing> {
+  if (!process.env.BACKEND_API_URL) {
+    throw new Error("BACKEND_API_URL is not defined");
+  }
+
+  const url = `${process.env.BACKEND_API_URL}/api/listings/${id}/`;
+
+  console.log("FETCHING:", url);
+
+  const res = await fetch(url, {
+    cache: "no-store",
+  });
+
+  if (res.status === 404) {
+    return notFound();
+  }
+
+  if (!res.ok) {
+    throw new Error(`Failed to fetch listing: ${res.status}`);
+  }
+
+  return res.json();
+}
+
+export default async function ListingDetailPage({
+  params,
+}: {
+  params: Promise<{ id: string }>;
+}) {
+  const { id } = await params;
+  const listing = await getListing(id);
+
+  const monthlyCost = parseFloat(listing.monthly_rent);
+
   return (
     <main className="min-h-screen bg-background text-foreground flex justify-center px-6 py-10">
       <div className="w-full max-w-6xl">
@@ -10,27 +70,25 @@ export default function HomePage() {
         {/* HEADER */}
         <section className="mb-6">
           <h1 className="text-3xl md:text-4xl font-semibold tracking-tight leading-tight">
-            Salinas Drive · 3 Bedroom Apartment
+            {listing.title}
           </h1>
 
           <div className="flex flex-wrap items-center gap-2 mt-3 text-sm text-muted">
             <span className="flex items-center gap-1">
-              ⭐ 4.92
-              <span>·</span>
-              <span className="underline cursor-pointer">128 reviews</span>
+              ⭐ {listing.rating}
             </span>
 
             <span>·</span>
 
             <span className="underline cursor-pointer">
-              Cebu City, Philippines
+              {listing.city}
             </span>
           </div>
         </section>
 
         {/* IMAGES */}
         <section className="overflow-hidden rounded-3xl mb-10">
-          <Images />
+          <Images images={listing.images} />
         </section>
 
         {/* MAIN GRID */}
@@ -42,33 +100,27 @@ export default function HomePage() {
             {/* HOST */}
             <section className="pb-8 border-b border-border">
               <div className="flex items-start justify-between">
-
                 <div>
                   <h2 className="text-2xl font-semibold leading-snug">
-                    Entire rental unit hosted by Randall
+                    {listing.caption || `Entire rental unit in ${listing.city}`}
                   </h2>
 
                   <p className="text-muted mt-2">
-                    6 guests · 3 bedrooms · 4 beds · 2 baths
+                    {listing.bedrooms} bedroom{listing.bedrooms !== 1 ? "s" : ""} ·{" "}
+                    {listing.bathrooms} bath{listing.bathrooms !== 1 ? "s" : ""}
                   </p>
                 </div>
-
-                <div className="w-12 h-12 rounded-full bg-card border border-border flex items-center justify-center font-semibold">
-                  R
-                </div>
-
               </div>
             </section>
 
             {/* FEATURES */}
             <section className="space-y-6 pb-8 border-b border-border">
-
               <div className="flex gap-4 items-start">
                 <div className="text-xl">🏡</div>
                 <div>
                   <h3 className="font-medium">Entire home</h3>
                   <p className="text-sm text-muted">
-                    You’ll have the apartment to yourself.
+                    You'll have the apartment to yourself.
                   </p>
                 </div>
               </div>
@@ -77,9 +129,7 @@ export default function HomePage() {
                 <div className="text-xl">📍</div>
                 <div>
                   <h3 className="font-medium">Great location</h3>
-                  <p className="text-sm text-muted">
-                    Near IT Park, restaurants, and cafes.
-                  </p>
+                  <p className="text-sm text-muted">{listing.address}</p>
                 </div>
               </div>
 
@@ -92,40 +142,27 @@ export default function HomePage() {
                   </p>
                 </div>
               </div>
-
             </section>
 
             {/* DESCRIPTION */}
             <section className="pb-8 border-b border-border">
-              <h2 className="text-xl font-semibold mb-4">
-                About this place
-              </h2>
-
-              <p className="text-muted leading-7 max-w-3xl">
-                Modern and spacious apartment located in the heart of Cebu City.
-                Designed with a clean minimalist style, this space is perfect for
-                families, remote workers, or groups looking for comfort and convenience.
-              </p>
+              <h2 className="text-xl font-semibold mb-4">About this place</h2>
+              <p className="text-muted leading-7 max-w-3xl">{listing.description}</p>
             </section>
 
             {/* AMENITIES */}
-            <section>
-              <h2 className="text-xl font-semibold mb-5">
-                What this place offers
-              </h2>
-
-              <div className="grid grid-cols-1 sm:grid-cols-2 gap-y-4 text-muted">
-                <div>📶 Wifi</div>
-                <div>❄️ Air conditioning</div>
-                <div>🍳 Kitchen</div>
-                <div>🚗 Free parking</div>
-                <div>🧺 Washer</div>
-                <div>📺 TV</div>
-                <div>🏊 Pool access</div>
-                <div>🏋️ Gym</div>
-              </div>
-            </section>
-
+            {listing.amenities?.length > 0 && (
+              <section>
+                <h2 className="text-xl font-semibold mb-5">
+                  What this place offers
+                </h2>
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-y-4 text-muted">
+                  {listing.amenities.map((amenity, i) => (
+                    <div key={i}>{amenity}</div>
+                  ))}
+                </div>
+              </section>
+            )}
           </div>
 
           {/* RIGHT COLUMN */}
@@ -133,16 +170,11 @@ export default function HomePage() {
             <div className="sticky top-10 border border-border rounded-3xl p-6 shadow-lg bg-card">
 
               <div className="flex items-end gap-1 mb-6">
-                <span className="text-3xl font-semibold">₱22,500</span>
-                <span className="text-muted mb-1">month</span>
+                <span className="text-3xl font-semibold">
+                  ₱{monthlyCost.toLocaleString()}
+                </span>
+                <span className="text-muted mb-1">/ month</span>
               </div>
-
-              {/* DATE & TIME BOX */}
-              {/* <div className="border border-border rounded-2xl overflow-hidden mb-4 text-sm bg-background">
-                <div className="p-3">
-                  <p className="text-muted">Select date & time</p>
-                </div>
-              </div> */}
 
               <button className="w-full bg-rose-500 hover:bg-rose-600 transition-colors text-white font-medium py-3 rounded-2xl">
                 Schedule a Tour
@@ -154,32 +186,15 @@ export default function HomePage() {
 
               {/* PRICE BREAKDOWN */}
               <div className="mt-6 space-y-3 text-sm">
-
                 <div className="flex justify-between text-muted">
                   <span className="underline">Monthly rent</span>
-                  <span>₱18,000</span>
-                </div>
-
-                <div className="flex justify-between text-muted">
-                  <span className="underline">Association dues</span>
-                  <span>₱1,500</span>
-                </div>
-
-                <div className="flex justify-between text-muted">
-                  <span className="underline">Utilities (estimated)</span>
-                  <span>₱2,000</span>
-                </div>
-
-                <div className="flex justify-between text-muted">
-                  <span className="underline">Internet fee</span>
-                  <span>₱1,000</span>
+                  <span>₱{monthlyCost.toLocaleString()}</span>
                 </div>
 
                 <div className="border-t border-border pt-3 flex justify-between font-semibold">
                   <span>Total monthly payment</span>
-                  <span>₱22,500</span>
+                  <span>₱{monthlyCost.toLocaleString()}</span>
                 </div>
-
               </div>
 
             </div>
