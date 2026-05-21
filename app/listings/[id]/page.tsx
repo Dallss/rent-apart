@@ -65,7 +65,7 @@ export default async function ListingDetailPage({
   const monthlyCost = parseFloat(listing.monthly_rent);
 
   return (
-    <main className="min-h-screen bg-background text-foreground flex justify-center px-6 py-10">
+    <main className="min-h-screen bg-white text-foreground flex justify-center px-6 py-10">
       <div className="w-full max-w-6xl">
 
         {/* HEADER */}
@@ -179,7 +179,7 @@ export default async function ListingDetailPage({
 
               <Link
                 href="/schedule-tour" 
-                className="block text-center w-full bg-rose-500 hover:bg-rose-600 transition-colors text-white font-medium py-3 rounded-2xl"
+                className="block text-center w-full bg-accent hover:primary-ligt transition-colors text-white font-medium py-3 rounded-2xl"
               >
                 Schedule a Tour
               </Link>

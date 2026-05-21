@@ -140,6 +140,7 @@ export default function BookingPage() {
             rounded-full
             px-3 py-1.5
             transition-all duration-150
+            text-primary
           "
         >
           <svg width="16" height="16" viewBox="0 0 16 16" fill="none">
@@ -210,7 +211,7 @@ export default function BookingPage() {
                       className={`
                         relative mx-auto w-9 h-9 rounded-full text-sm transition-all flex items-center justify-center
                         ${past ? "text-[#d0cec9] cursor-not-allowed" :
-                          sel ? "bg-[#1a1a1a] text-white font-semibold" :
+                          sel ? "bg-accent hover:bg-primary-light text-white font-semibold" :
                           "text-[#1a1a1a] hover:bg-[#f5f3ef]"}
                       `}
                     >
@@ -244,7 +245,7 @@ export default function BookingPage() {
                         ${!slot.available
                           ? "text-[#d0cdc8] border-[#f0ede8] cursor-not-allowed bg-white"
                           : selectedTime === slot.time
-                          ? "bg-[#1a1a1a] text-white border-[#1a1a1a]"
+                          ? "bg-accent hover:bg-primary-light text-white border-accent"
                           : "bg-white border-[#ebe8e2] text-[#1a1a1a] hover:border-[#999]"
                         }
                       `}
@@ -261,7 +262,7 @@ export default function BookingPage() {
             <button
               onClick={() => setStep(2)}
               disabled={!selectedDate || !selectedTime}
-              className="w-full bg-[#1a1a1a] text-white py-3.5 rounded-2xl text-sm font-semibold disabled:opacity-30 disabled:cursor-not-allowed hover:bg-[#333] transition-colors"
+              className="w-full bg-accent hover:bg-primary-light text-white py-3.5 rounded-2xl text-sm font-semibold disabled:opacity-30 disabled:cursor-not-allowed  transition-colors"
             >
               Continue
             </button>

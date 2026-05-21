@@ -164,20 +164,21 @@ export function AuthToolbar() {
           )}
 
           {isSignedIn && isHost && (
-            <button
+            <Link
+              href="/manage-listings"
               className="
                 rounded-full
                 px-4 py-2
                 text-sm font-medium
                 text-white
-                bg-[var(--color-primary)]
+                bg-accent
                 hover:bg-[var(--color-primary-light)]
                 transition
                 shadow-sm
               "
             >
               Manage properties
-            </button>
+            </Link>
           )}
 
           {isSignedIn && !isHost && pathname !== "/become-a-host" && (
