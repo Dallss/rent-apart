@@ -1,11 +1,9 @@
 import { AllListings } from "@/components/all-listings";
-import SearchBar from "@/components/search-bar";
 
 export default function Home() {
   return (
-    <>
-      <SearchBar />
+    <main className="flex flex-col gap-4">
       <AllListings />
-    </>
+    </main>
   );
 }

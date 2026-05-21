@@ -12,16 +12,18 @@ export default function SearchBar() {
         className="
           flex items-center
           w-full max-w-4xl
-          bg-white
+          bg-[var(--color-surface)]
           rounded-full
-          shadow-md
-          border border-gray-200
+          shadow-sm
+          border border-[var(--color-border)]
           overflow-hidden
         "
       >
         {/* WHERE */}
-        <div className="flex-1 px-6 py-3 hover:bg-gray-100 transition cursor-pointer">
-          <p className="text-xs font-semibold text-gray-900">Where</p>
+        <div className="flex-1 px-6 py-3 hover:bg-[var(--color-muted)]/10 transition cursor-pointer">
+          <p className="text-xs font-semibold text-[var(--color-foreground)]">
+            Where
+          </p>
 
           <input
             type="text"
@@ -31,18 +33,19 @@ export default function SearchBar() {
               bg-transparent
               outline-none
               text-sm
-              text-gray-600
-              placeholder:text-gray-400
+              text-[var(--color-muted)]
+              placeholder:text-[var(--color-muted)]
             "
           />
         </div>
 
-        {/* DIVIDER */}
-        <div className="h-8 w-px bg-gray-200" />
+        <div className="h-8 w-px bg-[var(--color-border)]" />
 
         {/* TYPE */}
-        <div className="flex-1 px-6 py-3 hover:bg-gray-100 transition cursor-pointer">
-          <p className="text-xs font-semibold text-gray-900">Type</p>
+        <div className="flex-1 px-6 py-3 hover:bg-[var(--color-muted)]/10 transition cursor-pointer">
+          <p className="text-xs font-semibold text-[var(--color-foreground)]">
+            Type
+          </p>
 
           <select
             value={type}
@@ -52,7 +55,7 @@ export default function SearchBar() {
               bg-transparent
               outline-none
               text-sm
-              text-gray-600
+              text-[var(--color-muted)]
               appearance-none
               cursor-pointer
             "
@@ -66,13 +69,14 @@ export default function SearchBar() {
           </select>
         </div>
 
-        {/* DIVIDER */}
-        <div className="h-8 w-px bg-gray-200" />
+        <div className="h-8 w-px bg-[var(--color-border)]" />
 
         {/* WHO */}
         <div className="flex items-center flex-1">
-          <div className="flex-1 px-6 py-3 hover:bg-gray-100 transition cursor-pointer">
-            <p className="text-xs font-semibold text-gray-900">Who</p>
+          <div className="flex-1 px-6 py-3 hover:bg-[var(--color-muted)]/10 transition cursor-pointer">
+            <p className="text-xs font-semibold text-[var(--color-foreground)]">
+              Who
+            </p>
 
             <input
               type="text"
@@ -82,8 +86,8 @@ export default function SearchBar() {
                 bg-transparent
                 outline-none
                 text-sm
-                text-gray-600
-                placeholder:text-gray-400
+                text-[var(--color-muted)]
+                placeholder:text-[var(--color-muted)]
               "
             />
           </div>
@@ -95,12 +99,12 @@ export default function SearchBar() {
               h-12
               w-12
               rounded-full
-              bg-[#FF385C]
-              hover:bg-[#e31c5f]
+              bg-[var(--color-primary)]
+              hover:bg-[var(--color-primary-light)]
               transition
               flex items-center justify-center
               text-white
-              shrink-0
+              shadow-sm
             "
           >
             <Search size={18} />
