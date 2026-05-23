@@ -6,7 +6,6 @@ import Script from "next/script";
 import { useCallback, useEffect, useRef, useState } from "react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-import SearchBar from "./search-bar";
 import Image from "next/image";
 
 
@@ -120,16 +119,16 @@ export function AuthToolbar() {
   const showConfigHint = ready && !clientId;
 
   return (
-    <header className="sticky top-0 z-20 border-b border-[var(--color-border)] bg-[var(--color-background)]/80 backdrop-blur-md">
+    <header className="sticky top-0 z-22 backdrop-blur-md bg-navbar m-5 rounded-2xl shadow-md">
       <div className="mx-auto flex w-full max-w-7xl items-center justify-between px-6 py-4">
 
         {/* LEFT */}
-        <div className="flex items-center gap-4">
+        <div className="flex items-center gap-3">
           <Link
             href="/"
             className="text-base flex items-center gap-2 font-semibold tracking-tight text-[var(--color-foreground)]"
           >
-            <Image src="/logo.png" alt="Rent Apart" width={50} height={50} /> <span className="text-2xl font-bold">Rent Apart</span>
+            <Image src="/logo.png" alt="Rent Apart" width={40} height={40} /> <span className="text-2xl font-bold">Rent Apart</span>
           </Link>
 
           <AuthStatusPill
@@ -220,18 +219,6 @@ export function AuthToolbar() {
           <GoogleSignInSlot disabled={!gsiReady} />
         </div>
       </div>
-      {pathname === "/" && (
-        <>  {/* HERO */}
-          <div className="text-center text-2xl font-bold mb-4">
-            <span className="text-primary">Make your move easier</span>
-          </div>
-          <div className="text-center text-sm text-[var(--color-muted)]">
-            From finding a place to settling in, we make long-term city living simple.
-          </div>
-          {/* SEARCH BAR */}
-          <SearchBar />
-        </>
-      )}
 
       {clientId && (
         <Script
