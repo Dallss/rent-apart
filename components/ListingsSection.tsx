@@ -2,7 +2,7 @@
 import Link from "next/link";
 
 import { useEffect, useState } from "react";
-import Listing from "./listing";
+import Listing from "./Listing";
 
 type ApiListing = {
   id: number;
@@ -42,7 +42,7 @@ function formatRent(n: number) {
   }).format(n);
 }
 
-export function AllListings() {
+export function ListingSection() {
   const [listings, setListings] = useState<Listing[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);

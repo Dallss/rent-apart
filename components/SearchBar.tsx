@@ -3,12 +3,13 @@
 import { Search } from "lucide-react";
 import { useState } from "react";
 import { usePathname } from "next/navigation";
+
 export default function SearchBar() {
   const [type, setType] = useState("Any type");
   const pathname = usePathname();
   return (
     <> {pathname === "/" && (
-    <div className="w-full flex justify-center p-6">
+    <div className="sticky top-0 w-full flex justify-center p-6">
       <div
         className="
           flex items-center

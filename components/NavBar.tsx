@@ -89,7 +89,7 @@ function GoogleSignInSlot({ disabled }: { disabled: boolean }) {
   return <div ref={btnRef} className="flex min-h-[40px]" />;
 }
 
-export function AuthToolbar() {
+export function NavBar() {
 
   const [isScrolled, setIsScrolled] = useState(false);
 
@@ -119,9 +119,8 @@ export function AuthToolbar() {
   const showConfigHint = ready && !clientId;
 
   return (
-    <header className="sticky top-0 z-22 backdrop-blur-md bg-navbar m-5 rounded-2xl shadow-md">
-      <div className="mx-auto flex w-full max-w-7xl items-center justify-between px-6 py-4">
-
+    // <header className="sticky top-0 z-22 backdrop-blur-md bg-navbar m-5 rounded-2xl shadow-md">
+    <div className="sticky top-5 z-20 m-5 flex items-center justify-between border px-6 py-4">
         {/* LEFT */}
         <div className="flex items-center gap-3">
           <Link
@@ -218,15 +217,17 @@ export function AuthToolbar() {
 
           <GoogleSignInSlot disabled={!gsiReady} />
         </div>
-      </div>
 
-      {clientId && (
+        {clientId && (
         <Script
           src="https://accounts.google.com/gsi/client"
           strategy="afterInteractive"
           onLoad={() => setGsiReady(true)}
         />
       )}
-    </header>
+      </div>
+
+      
+    // </header>
   );
 }

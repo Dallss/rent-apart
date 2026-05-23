@@ -4,9 +4,8 @@ import { Geist, Geist_Mono } from "next/font/google";
 
 import "./globals.css";
 
-import { AuthToolbar } from "@/components/auth-toolbar";
-import HomeHero from "@/components/home-hero";
-import SearchBar from "@/components/search-bar";
+import { NavBar } from "@/components/NavBar";
+
 
 const geistSans = Geist({
   variable: "--font-geist-sans",
@@ -34,17 +33,12 @@ export default function RootLayout({
       className={`${geistSans.variable} ${geistMono.variable} h-full antialiased`}
     >
       <body className="flex min-h-full flex-col">
-
         <AuthProvider>
-          <header className="sticky top-0 z-20 border-b border-[var(--color-border)] bg-[url('/homebg.png')]">
-            <AuthToolbar />
-            <HomeHero />
-            <SearchBar />
-          </header>
+
+          <NavBar />
           {children}
           
         </AuthProvider>
-
       </body>
     </html>
   );
