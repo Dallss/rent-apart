@@ -120,7 +120,7 @@ export function NavBar() {
 
   return (
     // <header className="sticky top-0 z-22 backdrop-blur-md bg-navbar m-5 rounded-2xl shadow-md">
-    <div className="sticky top-5 z-20 m-5 flex items-center justify-between border px-6 py-4">
+    <div className="sticky top-5 z-20 m-5 flex items-center justify-between border px-6 py-4 bg-background">
         {/* LEFT */}
         <div className="flex items-center gap-3">
           <Link

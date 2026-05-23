@@ -3,17 +3,29 @@
 import { Search } from "lucide-react";
 import { useState } from "react";
 import { usePathname } from "next/navigation";
+import { motion, useScroll, useTransform } from "framer-motion";
 
 export default function SearchBar() {
   const [type, setType] = useState("Any type");
   const pathname = usePathname();
+
+  const { scrollY } = useScroll();
+
+  const scale = useTransform(scrollY, [0, 200], [1, 0.75]);
+  const iconOpacity = useTransform(scrollY, [0, 120], [1, 0]);
+
+  if (pathname !== "/") return null;
+
   return (
-    <> {pathname === "/" && (
-    <div className="sticky top-0 w-full flex justify-center p-6">
-      <div
+    <div className="sticky top-0 z-30 flex justify-center p-6">
+      
+      {/* THIS is the actual bar */}
+      <motion.div
+        style={{ scale }}
         className="
           flex items-center
           w-full max-w-4xl
+          origin-center
           bg-[var(--color-surface)]
           rounded-full
           shadow-sm
@@ -22,52 +34,24 @@ export default function SearchBar() {
         "
       >
         {/* WHERE */}
-        <div className="flex-1 px-6 py-3 hover:bg-[var(--color-muted)]/10 transition cursor-pointer">
-          <p className="text-xs font-semibold text-[var(--color-foreground)]">
-            Where
-          </p>
-
-          <input
-            type="text"
-            placeholder="Search place"
-            className="
-              w-full
-              bg-transparent
-              outline-none
-              text-sm
-              text-[var(--color-muted)]
-              placeholder:text-[var(--color-muted)]
-            "
-          />
+        <div className="flex-1 px-6 py-3">
+          <p className="text-xs font-semibold">Where</p>
+          <input className="w-full bg-transparent outline-none text-sm" />
         </div>
 
         <div className="h-8 w-px bg-[var(--color-border)]" />
 
         {/* TYPE */}
-        <div className="flex-1 px-6 py-3 hover:bg-[var(--color-muted)]/10 transition cursor-pointer">
-          <p className="text-xs font-semibold text-[var(--color-foreground)]">
-            Type
-          </p>
-
+        <div className="flex-1 px-6 py-3">
+          <p className="text-xs font-semibold">Type</p>
           <select
             value={type}
             onChange={(e) => setType(e.target.value)}
-            className="
-              w-full
-              bg-transparent
-              outline-none
-              text-sm
-              text-[var(--color-muted)]
-              appearance-none
-              cursor-pointer
-            "
+            className="w-full bg-transparent outline-none text-sm"
           >
             <option>Any type</option>
             <option>Apartment</option>
             <option>House</option>
-            <option>Villa</option>
-            <option>Cabin</option>
-            <option>Condo</option>
           </select>
         </div>
 
@@ -75,45 +59,26 @@ export default function SearchBar() {
 
         {/* WHO */}
         <div className="flex items-center flex-1">
-          <div className="flex-1 px-6 py-3 hover:bg-[var(--color-muted)]/10 transition cursor-pointer">
-            <p className="text-xs font-semibold text-[var(--color-foreground)]">
-              Who
-            </p>
-
-            <input
-              type="text"
-              placeholder="Add tenants"
-              className="
-                w-full
-                bg-transparent
-                outline-none
-                text-sm
-                text-[var(--color-muted)]
-                placeholder:text-[var(--color-muted)]
-              "
-            />
+          <div className="flex-1 px-6 py-3">
+            <p className="text-xs font-semibold">Who</p>
+            <input className="w-full bg-transparent outline-none text-sm" />
           </div>
 
-          {/* SEARCH BUTTON */}
-          <button
+          <motion.button
+            style={{ opacity: iconOpacity }}
             className="
               mr-2
-              h-12
-              w-12
+              h-12 w-12
               rounded-full
               bg-[var(--color-primary)]
-              hover:bg-[var(--color-primary-light)]
-              transition
               flex items-center justify-center
               text-white
-              shadow-sm
             "
           >
             <Search size={18} />
-          </button>
+          </motion.button>
         </div>
-      </div>
-    </div>)}
-    </>
+      </motion.div>
+    </div>
   );
 }
