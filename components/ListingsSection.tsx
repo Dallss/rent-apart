@@ -63,17 +63,26 @@ export function ListingSection() {
           throw new Error("Failed to fetch listings");
         }
 
+        
+        //   "id": 10,
+        //   "hero": {
+        //     "title": "Heritage Loft Near Colon Street — Fully Renovated",
+        //     "image": "https://images.unsplash.com/photo-1600047509807-ba8f99d2cdde?auto=format&fit=crop&w=1200&h=800&q=80",
+        //     "price": 16000,
+        //     "city": "Cebu City"
+        //   },
+        //   "listing_type": "",
+        //   "property_type": ""
+        
         const data: ApiListing[] = await res.json();
 
         const mapped: Listing[] = data.map((item) => ({
           id: String(item.id),
-          title: item.title,
-          neighborhood: item.city, // or address if you prefer
-          rent: Number(item.monthly_rent),
+          title: item.hero.title,
+          neighborhood: item.hero.city, // or address if you prefer
+          rent: Number(item.hero.price),
           bedrooms: item.bedrooms,
-          sqft: 0, // backend doesn’t provide yet
-          blurb: item.description,
-          image: item.hero_image,
+          image: item.hero.image,
         }));
 
         setListings(mapped);
@@ -88,11 +97,11 @@ export function ListingSection() {
   }, []);
 
   return (
-    <div className="flex min-h-full flex-col w-screen">
+    <div className="flex min-h-full flex-col w-full max-w-screen-2xl mx-auto">
       <main className="mx-auto w-full max-w-screen flex-1 px-4 py-8">
         <div className="ml-3">
-          <h1 className="font-semibold tracking-tight sm:text-2xl">
-            Popular apartments
+          <h1 className="font-sans font-light tracking-wide sm:text-2xl">
+          Apartments Near University of the Philippines - Cebu
           </h1>
         </div>
 
@@ -110,7 +119,7 @@ export function ListingSection() {
 
         {/* Listings */}
         {!loading && !error && (
-          <ul className="flex w-full gap-4 overflow-x-auto overflow-y-hidden mb-5">
+          <ul className="flex w-full overflow-x-auto overflow-y-hidden mb-10">
           {listings.map((item) => (
             <li key={item.id}>
               <Link href={`/listings/${item.id}`}>
@@ -122,14 +131,13 @@ export function ListingSection() {
         )}
 
         <div className="ml-3">
-          <h1 className="font-semibold tracking-tight sm:text-2xl">
-            Apartments
+          <h1 className=" font-sans font-light tracking-wid sm:text-2xl">
+          Popular apartments
           </h1>
         </div>
-
         {/* Listings */}
         {!loading && !error && (
-          <ul className="flex w-full gap-4 overflow-x-auto overflow-y-hidden mb-5">
+          <ul className="flex w-full overflow-x-auto overflow-y-hidden mb-10">
           {listings.map((item) => (
             <li key={item.id}>
               <Link href={`/listings/${item.id}`}>
@@ -139,6 +147,44 @@ export function ListingSection() {
           ))}
         </ul>
         )}
+
+      <div className="ml-3">
+          <h1 className=" font-sans font-light tracking-wid sm:text-2xl">
+          Budget Friendly Apartments
+          </h1>
+        </div>
+        {/* Listings */}
+        {!loading && !error && (
+          <ul className="flex w-full overflow-x-auto overflow-y-hidden mb-10">
+          {listings.map((item) => (
+            <li key={item.id}>
+              <Link href={`/listings/${item.id}`}>
+                <Listing item={item} />
+              </Link>
+            </li>
+          ))}
+        </ul>
+        )}
+
+      <div className="ml-3">
+          <h1 className=" font-sans font-light tracking-wid sm:text-2xl">
+          Perfect for Students Apartments
+          </h1>
+        </div>
+        {/* Listings */}
+        {!loading && !error && (
+          <ul className="flex w-full overflow-x-auto overflow-y-hidden mb-10">
+          {listings.map((item) => (
+            <li key={item.id}>
+              <Link href={`/listings/${item.id}`}>
+                <Listing item={item} />
+              </Link>
+            </li>
+          ))}
+        </ul>
+        )}
+
+
       </main>
     </div>
   );

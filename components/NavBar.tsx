@@ -29,7 +29,7 @@ function AuthStatusPill({
   if (isSignedIn) {
     return (
       <span
-        className="inline-flex max-w-[18rem] truncate rounded-full border border-[var(--color-primary)]/30 bg-[var(--color-primary)]/10 px-3 py-1 text-xs font-medium text-[var(--color-foreground)]"
+        className="inline-flex max-w-[18rem] truncate rounded-full border border-[var(--color-primary)]/30 bg-[var(--color-primary)]/10 px-3 py-1 text-xs  text-[var(--color-foreground)]"
         title={userEmail ?? undefined}
       >
         {userEmail ?? "Signed in"}
@@ -119,22 +119,25 @@ export function NavBar() {
   const showConfigHint = ready && !clientId;
 
   return (
-    // <header className="sticky top-0 z-22 backdrop-blur-md bg-navbar m-5 rounded-2xl shadow-md">
-    <div className="sticky top-5 z-20 m-5 flex items-center justify-between border px-6 py-4 bg-background">
+    <div className={`sticky top-0 z-20 flex items-center justify-between px-20 py-4 transition-all duration-300 ${
+      pathname === "/"
+        ? isScrolled ? "bg-black/40 backdrop-blur-md" : "bg-transparent"
+        : "bg-black/40 backdrop-blur-md"
+    }`}>
         {/* LEFT */}
         <div className="flex items-center gap-3">
           <Link
             href="/"
             className="text-base flex items-center gap-2 font-semibold tracking-tight text-[var(--color-foreground)]"
           >
-            <Image src="/logo.png" alt="Rent Apart" width={40} height={40} /> <span className="text-2xl font-bold">Rent Apart</span>
+            <Image src="/logo.png" alt="Rent Apart" width={45} height={45} /> <span className="text-2xl text-white">Rent Apart</span>
           </Link>
 
-          <AuthStatusPill
+          {/* <AuthStatusPill
             ready={ready}
             isSignedIn={isSignedIn}
             userEmail={userEmail}
-          />
+          /> */}
         </div>
 
         {/* RIGHT */}
@@ -142,7 +145,7 @@ export function NavBar() {
 
           {authError && (
             <div className="flex flex-col gap-1 text-xs">
-              <span className="rounded-md border border-red-500/30 bg-red-500/10 px-2 py-1 text-red-500">
+              <span className="rounded-md border border-red-500/30 bg-red-500/10 px-2 text-red-500">
                 {authError}
               </span>
 
@@ -166,13 +169,13 @@ export function NavBar() {
               href="/manage-listings"
               className="
                 rounded-full
+                border-[var(--color-border)]
                 px-4 py-2
                 text-sm font-medium
                 text-white
-                bg-accent
-                hover:bg-[var(--color-primary-light)]
+                hover:bg-[var(--color-muted)]/10
                 transition
-                shadow-sm
+                bg-primary
               "
             >
               Manage properties
@@ -184,13 +187,13 @@ export function NavBar() {
               href="/become-a-host"
               className="
                 rounded-full
-                border border-[var(--color-border)]
+                border-[var(--color-border)]
                 px-4 py-2
                 text-sm font-medium
-                text-[var(--color-foreground)]
+                text-white
                 hover:bg-[var(--color-muted)]/10
                 transition
-                bg-white
+                bg-primary
               "
             >
               Become a host
@@ -204,7 +207,7 @@ export function NavBar() {
                 rounded-full
                 border border-[var(--color-border)]
                 px-4 py-2
-                text-sm font-medium
+                text-xs font-medium
                 text-[var(--color-foreground)]
                 hover:bg-[var(--color-muted)]/10
                 transition
@@ -226,8 +229,5 @@ export function NavBar() {
         />
       )}
       </div>
-
-      
-    // </header>
   );
 }

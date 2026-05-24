@@ -1,14 +1,12 @@
 // app/listings/[id]/page.tsx
 
 import { notFound } from "next/navigation";
-import Images from "@/components/listing-view/images";
+import Images from "@/components/listings/images";
 import Link from "next/link";
 
 interface ListingImage {
   id: number;
-  image: string;
-  is_primary: boolean;
-  category: string;
+  image_url: string;
   caption: string;
 }
 
@@ -16,18 +14,28 @@ interface Listing {
   id: number;
   title: string;
   description: string;
-  address: string;
+  landlord: string;
+  country: string;
   city: string;
+  neighborhood: string;
+  street_address: string;
+  latitude: string;
+  longitude: string;
   monthly_rent: string;
   bedrooms: number;
   bathrooms: number;
-  amenities: string[];
-  caption: string;
-  rating: string;
   is_available: boolean;
+  listing_type: string;
+  property_type: string;
+  hero_image: string;
+  images: ListingImage[];
+  amenities: {
+    id: number;
+    name: string;
+    icon: string;
+  }[];
   created_at: string;
   updated_at: string;
-  images: ListingImage[];
 }
 
 async function getListing(id: string): Promise<Listing> {
@@ -39,17 +47,10 @@ async function getListing(id: string): Promise<Listing> {
 
   console.log("FETCHING:", url);
 
-  const res = await fetch(url, {
-    cache: "no-store",
-  });
+  const res = await fetch(url, { cache: "no-store" });
 
-  if (res.status === 404) {
-    return notFound();
-  }
-
-  if (!res.ok) {
-    throw new Error(`Failed to fetch listing: ${res.status}`);
-  }
+  if (res.status === 404) return notFound();
+  if (!res.ok) throw new Error(`Failed to fetch listing: ${res.status}`);
 
   return res.json();
 }
@@ -62,7 +63,7 @@ export default async function ListingDetailPage({
   const { id } = await params;
   const listing = await getListing(id);
 
-  const monthlyCost = parseFloat(listing.monthly_rent);
+  const monthlyRent = parseFloat(listing.monthly_rent);
 
   return (
     <main className="min-h-screen bg-white text-foreground flex justify-center px-6 py-10">
@@ -75,15 +76,7 @@ export default async function ListingDetailPage({
           </h1>
 
           <div className="flex flex-wrap items-center gap-2 mt-3 text-sm text-muted">
-            <span className="flex items-center gap-1">
-              ⭐ {listing.rating}
-            </span>
-
-            <span>·</span>
-
-            <span className="underline cursor-pointer">
-              {listing.city}
-            </span>
+            <span className="underline cursor-pointer">{listing.city}</span>
           </div>
         </section>
 
@@ -103,9 +96,8 @@ export default async function ListingDetailPage({
               <div className="flex items-start justify-between">
                 <div>
                   <h2 className="text-2xl font-semibold leading-snug">
-                    {listing.caption || `Entire rental unit in ${listing.city}`}
+                    {listing.listing_type || "Entire rental unit"} in {listing.city}
                   </h2>
-
                   <p className="text-muted mt-2">
                     {listing.bedrooms} bedroom{listing.bedrooms !== 1 ? "s" : ""} ·{" "}
                     {listing.bathrooms} bath{listing.bathrooms !== 1 ? "s" : ""}
@@ -130,7 +122,7 @@ export default async function ListingDetailPage({
                 <div className="text-xl">📍</div>
                 <div>
                   <h3 className="font-medium">Great location</h3>
-                  <p className="text-sm text-muted">{listing.address}</p>
+                  <p className="text-sm text-muted">{listing.street_address}</p>
                 </div>
               </div>
 
@@ -158,8 +150,11 @@ export default async function ListingDetailPage({
                   What this place offers
                 </h2>
                 <div className="grid grid-cols-1 sm:grid-cols-2 gap-y-4 text-muted">
-                  {listing.amenities.map((amenity, i) => (
-                    <div key={i}>{amenity}</div>
+                  {listing.amenities.map((amenity) => (
+                    <div key={amenity.id} className="flex items-center gap-2">
+                      <span>{amenity.icon}</span>
+                      <span>{amenity.name}</span>
+                    </div>
                   ))}
                 </div>
               </section>
@@ -168,17 +163,17 @@ export default async function ListingDetailPage({
 
           {/* RIGHT COLUMN */}
           <aside>
-            <div className="sticky top-10 border border-border rounded-3xl p-6 shadow-lg bg-card">
+            <div className="sticky top-[200px] border border-border rounded-3xl p-6 shadow-lg bg-card">
 
               <div className="flex items-end gap-1 mb-6">
                 <span className="text-3xl font-semibold">
-                  ₱{monthlyCost.toLocaleString()}
+                  ₱{monthlyRent.toLocaleString()}
                 </span>
                 <span className="text-muted mb-1">/ month</span>
               </div>
 
               <Link
-                href="/schedule-tour" 
+                href="/schedule-tour"
                 className="block text-center w-full bg-accent hover:primary-ligt transition-colors text-white font-medium py-3 rounded-2xl"
               >
                 Schedule a Tour
@@ -192,12 +187,12 @@ export default async function ListingDetailPage({
               <div className="mt-6 space-y-3 text-sm">
                 <div className="flex justify-between text-muted">
                   <span className="underline">Monthly rent</span>
-                  <span>₱{monthlyCost.toLocaleString()}</span>
+                  <span>₱{monthlyRent.toLocaleString()}</span>
                 </div>
 
                 <div className="border-t border-border pt-3 flex justify-between font-semibold">
                   <span>Total monthly payment</span>
-                  <span>₱{monthlyCost.toLocaleString()}</span>
+                  <span>₱{monthlyRent.toLocaleString()}</span>
                 </div>
               </div>
 

@@ -2,9 +2,7 @@ import Image from "next/image";
 
 interface ListingImage {
   id: number;
-  image: string;
-  is_primary: boolean;
-  category: string;
+  image_url: string;
   caption: string;
 }
 
@@ -18,8 +16,8 @@ export default function Images({ images }: { images: ListingImage[] }) {
       {primary && (
         <div className="relative h-[260px] md:h-full md:col-span-1">
           <Image
-            src={primary.image}
-            alt={primary.caption || primary.category}
+            src={primary.image_url}
+            alt={primary.caption}
             fill
             priority
             className="object-cover rounded-3xl"
@@ -32,8 +30,8 @@ export default function Images({ images }: { images: ListingImage[] }) {
         {rest.map((img) => (
           <div key={img.id} className="relative w-full h-full">
             <Image
-              src={img.image}
-              alt={img.caption || img.category}
+              src={img.image_url}
+              alt={img.caption}
               fill
               className="object-cover rounded-2xl"
             />

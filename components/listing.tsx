@@ -20,7 +20,7 @@ function formatRent(n: number) {
  
  export default function Listing({ item }: ListingProps) {
    return (
-     <article className="flex h-full flex-col w-[200px] overflow-hidden p-[10px]">
+     <article className="flex h-full flex-col w-[210px] overflow-hidden p-[10px]">
  
        <div className="aspect-[1/1] overflow-hidden w-full rounded-2xl mb-[5px] shadow-xs">
          {item.image ? (

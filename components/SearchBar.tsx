@@ -11,20 +11,19 @@ export default function SearchBar() {
 
   const { scrollY } = useScroll();
 
-  const scale = useTransform(scrollY, [0, 200], [1, 0.75]);
-  const iconOpacity = useTransform(scrollY, [0, 120], [1, 0]);
+  const scale = useTransform(scrollY, [0, 200], [1, 0.9]);
 
   if (pathname !== "/") return null;
 
   return (
-    <div className="sticky top-0 z-30 flex justify-center p-6">
+    <div className="sticky top-2 z-30 flex justify-center m-5 p-1">
       
       {/* THIS is the actual bar */}
       <motion.div
         style={{ scale }}
         className="
           flex items-center
-          w-full max-w-4xl
+          w-full max-w-3xl
           origin-center
           bg-[var(--color-surface)]
           rounded-full
@@ -34,7 +33,7 @@ export default function SearchBar() {
         "
       >
         {/* WHERE */}
-        <div className="flex-1 px-6 py-3">
+        <div className="flex-1 px-5 py-2">
           <p className="text-xs font-semibold">Where</p>
           <input className="w-full bg-transparent outline-none text-sm" />
         </div>
@@ -42,7 +41,7 @@ export default function SearchBar() {
         <div className="h-8 w-px bg-[var(--color-border)]" />
 
         {/* TYPE */}
-        <div className="flex-1 px-6 py-3">
+        <div className="flex-1 px-6">
           <p className="text-xs font-semibold">Type</p>
           <select
             value={type}
@@ -59,13 +58,12 @@ export default function SearchBar() {
 
         {/* WHO */}
         <div className="flex items-center flex-1">
-          <div className="flex-1 px-6 py-3">
+          <div className="flex-1 px-6">
             <p className="text-xs font-semibold">Who</p>
             <input className="w-full bg-transparent outline-none text-sm" />
           </div>
 
-          <motion.button
-            style={{ opacity: iconOpacity }}
+          <button
             className="
               mr-2
               h-12 w-12
@@ -76,7 +74,7 @@ export default function SearchBar() {
             "
           >
             <Search size={18} />
-          </motion.button>
+          </button>
         </div>
       </motion.div>
     </div>

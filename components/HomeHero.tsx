@@ -8,23 +8,27 @@ export default function HomeHero() {
 
   const { scrollY } = useScroll();
 
-  // Fade out between 0px and 200px scroll
+  // Fade out while scrolling
   const opacity = useTransform(scrollY, [0, 200], [1, 0]);
 
-  // Optional slight upward movement
+  // Move slightly upward
   const y = useTransform(scrollY, [0, 200], [0, -40]);
 
   if (pathname !== "/") return null;
 
   return (
-    <motion.div style={{ opacity, y }}>
-      <div className="mb-4 mt-10 text-center text-[45px] font-[650]">
-        <span className="text-primary">
-          <span className="text-black">Make your</span> move easier
+    <motion.div
+      initial={{ opacity: 1, y: 0 }}
+      style={{ opacity, y }}
+      className="relative z-10"
+    >
+      <div className="mb-4 mt-20 text-center text-[45px] font-[650]">
+        <span className="text-white">
+          Make your move easier
         </span>
       </div>
 
-      <div className="text-center text-sm text-[var(--color-muted)]">
+      <div className="text-center text-sm text-white tracking-wider">
         From finding a place to settling in, we make long-term city living
         simple.
       </div>

@@ -19,6 +19,8 @@
   --accent: #ff7a2f;
 
   --navbar: #f2ede3;
+
+  --hero-bg: url("/herobg.jpg");
 }
 
 @theme inline {
