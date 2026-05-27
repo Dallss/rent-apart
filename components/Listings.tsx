@@ -1,8 +1,5 @@
 "use client";
-import Link from "next/link";
-
 import { useEffect, useState } from "react";
-import Listing from "./Listing";
 import ListingLoading from "./ListingLoading";
 import ListingCollection from "./ListingCollection"
 import ListingError from "./ListingError";

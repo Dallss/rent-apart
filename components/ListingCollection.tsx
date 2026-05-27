@@ -1,5 +1,5 @@
 import Link from "next/link";
-import Listing from "./Listing";
+import ListingCard from "./ListingCard";
 
 type ListingsSectionProps = {
   title: string;
@@ -30,7 +30,7 @@ export default function ListingCollection({
         {listings.map((item) => (
           <li key={item.id}>
             <Link href={`/listings/${item.id}`}>
-              <Listing item={item} />
+              <ListingCard item={item} />
             </Link>
           </li>
         ))}

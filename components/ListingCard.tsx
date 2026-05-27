@@ -18,7 +18,7 @@ function formatRent(n: number) {
   }).format(n);
 }
  
- export default function Listing({ item }: ListingProps) {
+ export default function ListingCard({ item }: ListingProps) {
    return (
      <article className="flex h-full flex-col w-[210px] overflow-hidden p-[10px]">
  
