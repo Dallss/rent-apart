@@ -5,6 +5,7 @@ import { useEffect, useState } from "react";
 import Listing from "./Listing";
 import ListingLoading from "./ListingLoading";
 import ListingCollection from "./ListingCollection"
+import ListingError from "./ListingError";
 
 type ApiListing = {
   id: number;
@@ -90,10 +91,9 @@ export default function Listings() {
 
         setListings(mapped);
       } catch (err: any) {
-        // setError(err.message || "Something went wrong");
+        setError(err.message || "Something went wrong");
       } finally {
         setLoading(false);
-        // setLoading(true);
       }
     }
 
@@ -107,9 +107,7 @@ export default function Listings() {
         {loading && ( <ListingLoading /> )}
         {/* Error state */}
         {error && (
-          <p className="text-sm text-red-500">
-            Error: {error}
-          </p>
+          <ListingError />
         )}
         {/* Listings */}
         {!loading && !error && (
