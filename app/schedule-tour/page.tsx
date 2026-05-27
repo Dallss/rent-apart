@@ -198,7 +198,10 @@ export default function BookingPage() {
                 {calDays.map((day, i) => {
                   if (!day) return <div key={`e-${i}`} />;
                   const past = isPastDay(day);
-                  const sel = selectedDate === day;
+                  const sel =
+                    selectedDate?.day === day &&
+                    selectedDate?.month === calMonth &&
+                    selectedDate?.year === calYear;
                   const isToday =
                     day === today.getDate() &&
                     calMonth === today.getMonth() &&
@@ -207,7 +210,15 @@ export default function BookingPage() {
                     <button
                       key={day}
                       disabled={past}
-                      onClick={() => { setSelectedDate(day); setSelectedTime(""); }}
+                      onClick={() => {
+                        setSelectedDate({
+                          day,
+                          month: calMonth,
+                          year: calYear,
+                        });
+                      
+                        setSelectedTime("");
+                      }}
                       className={`
                         relative mx-auto w-9 h-9 rounded-full text-sm transition-all flex items-center justify-center
                         ${past ? "text-[#d0cec9] cursor-not-allowed" :
@@ -231,7 +242,7 @@ export default function BookingPage() {
                 <p className="text-sm font-semibold text-[#1a1a1a] mb-3">
                   Available times —{" "}
                   <span className="font-normal text-[#888]">
-                    {MONTH_NAMES[calMonth]} {selectedDate}
+                    {MONTH_NAMES[selMonth!]} {selDay}
                   </span>
                 </p>
                 <div className="grid grid-cols-3 sm:grid-cols-4 gap-2 mb-6">
@@ -280,7 +291,7 @@ export default function BookingPage() {
                 <path d="M1.5 5.5H12.5" stroke="#aaa" strokeWidth="1.2"/>
               </svg>
               <span className="text-xs text-[#888]">
-                {MONTH_NAMES[calMonth]} {selectedDate}, {calYear}
+                {MONTH_NAMES[selMonth!]} {selDay}, {selYear}
               </span>
               <span className="text-[#d0cdc8]">·</span>
               <svg width="14" height="14" viewBox="0 0 14 14" fill="none">

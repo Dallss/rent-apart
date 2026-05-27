@@ -9,11 +9,14 @@ import ListingError from "./ListingError";
 
 type ApiListing = {
   id: number;
-  title: string;
+  hero: {
+    title: string;
+    image: string;
+    price: number;
+    city: string;
+  };
   description: string;
   address: string;
-  city: string;
-  monthly_rent: string;
   bedrooms: number;
   bathrooms: number;
   is_available: boolean;
@@ -36,14 +39,6 @@ type Listing = {
   blurb: string;
   image?: string;
 };
-
-function formatRent(n: number) {
-  return new Intl.NumberFormat("en-US", {
-    style: "currency",
-    currency: "USD",
-    maximumFractionDigits: 0,
-  }).format(n);
-}
 
 export default function Listings() {
   const [listings, setListings] = useState<Listing[]>([]);
@@ -83,9 +78,11 @@ export default function Listings() {
         const mapped: Listing[] = data.map((item) => ({
           id: String(item.id),
           title: item.hero.title,
-          neighborhood: item.hero.city, // or address if you prefer
+          neighborhood: item.hero.city,
           rent: Number(item.hero.price),
           bedrooms: item.bedrooms,
+          sqft: 0,
+          blurb: item.description ?? "",
           image: item.hero.image,
         }));
 
