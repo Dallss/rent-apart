@@ -138,7 +138,7 @@ function FileDropzone({
 function PendingScreen() {
   const router = useRouter();
   return (
-    <div className="flex min-h-screen flex-col items-center justify-center bg-background px-6 text-center">
+    <div className="flex min-h-screen flex-col items-center justify-center bg-white px-6 text-center">
       <div className="mb-8 flex h-20 w-20 items-center justify-center rounded-full border border-amber-400/30 bg-amber-400/10 text-4xl">
         ⏳
       </div>
@@ -244,7 +244,7 @@ export default function BecomeHostPage() {
 
   if (!isSignedIn) {
     return (
-      <div className="flex min-h-screen items-center justify-center bg-background">
+      <div className="flex min-h-screen items-center justify-center bg-white">
         <div className="flex flex-col items-center gap-3 text-center">
           <span className="text-3xl">🔒</span>
           <p className="text-sm font-medium text-foreground">Sign in required</p>
@@ -256,7 +256,7 @@ export default function BecomeHostPage() {
 
   if (isHost) {
     return (
-      <div className="flex min-h-screen items-center justify-center bg-background">
+      <div className="flex min-h-screen items-center justify-center bg-white">
         <div className="flex flex-col items-center gap-3 text-center">
           <span className="text-3xl">🏠</span>
           <p className="text-sm font-medium text-foreground">You're already a host</p>
@@ -323,7 +323,7 @@ export default function BecomeHostPage() {
   );
 
   return (
-    <div className="min-h-screen bg-background px-4 py-16">
+    <div className="min-h-screen bg-white px-4 py-16">
       <div className="mx-auto max-w-2xl">
 
         {/* Header */}

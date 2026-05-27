@@ -20,9 +20,9 @@ export default function HomeHero() {
     <motion.div
       initial={{ opacity: 1, y: 0 }}
       style={{ opacity, y }}
-      className="relative z-10"
+      className="relative z-10 mb-8"
     >
-      <div className="mb-4 mt-20 text-center text-[45px] font-[650]">
+      <div className="mb-4 mt-10 text-center text-[55px] font-[700]">
         <span className="text-white">
           Make your move easier
         </span>

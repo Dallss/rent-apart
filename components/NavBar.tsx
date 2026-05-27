@@ -9,6 +9,7 @@ import { usePathname } from "next/navigation";
 import Image from "next/image";
 
 
+// this will still be used. intance is commented out.
 function AuthStatusPill({
   ready,
   isSignedIn,
