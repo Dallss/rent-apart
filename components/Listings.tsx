@@ -3,6 +3,8 @@ import Link from "next/link";
 
 import { useEffect, useState } from "react";
 import Listing from "./Listing";
+import ListingLoading from "./ListingLoading";
+import ListingCollection from "./ListingCollection"
 
 type ApiListing = {
   id: number;
@@ -42,7 +44,7 @@ function formatRent(n: number) {
   }).format(n);
 }
 
-export function ListingSection() {
+export default function Listings() {
   const [listings, setListings] = useState<Listing[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
@@ -63,7 +65,8 @@ export function ListingSection() {
           throw new Error("Failed to fetch listings");
         }
 
-        
+        //   ### Current data shape ###
+        // 
         //   "id": 10,
         //   "hero": {
         //     "title": "Heritage Loft Near Colon Street — Fully Renovated",
@@ -87,9 +90,10 @@ export function ListingSection() {
 
         setListings(mapped);
       } catch (err: any) {
-        setError(err.message || "Something went wrong");
+        // setError(err.message || "Something went wrong");
       } finally {
         setLoading(false);
+        // setLoading(true);
       }
     }
 
@@ -99,92 +103,42 @@ export function ListingSection() {
   return (
     <div className="flex min-h-full flex-col w-full max-w-screen-2xl mx-auto">
       <main className="mx-auto w-full max-w-screen flex-1 px-4 py-8">
-        <div className="ml-3">
-          <h1 className="font-sans font-light tracking-wide sm:text-2xl">
-          Apartments Near University of the Philippines - Cebu
-          </h1>
-        </div>
-
-        {/* Loading state */}
-        {loading && (
-          <p className="text-sm text-zinc-500">Loading listings...</p>
-        )}
-
+        
+        {loading && ( <ListingLoading /> )}
         {/* Error state */}
         {error && (
           <p className="text-sm text-red-500">
             Error: {error}
           </p>
         )}
-
         {/* Listings */}
         {!loading && !error && (
-          <ul className="flex w-full overflow-x-auto overflow-y-hidden mb-10">
-          {listings.map((item) => (
-            <li key={item.id}>
-              <Link href={`/listings/${item.id}`}>
-                <Listing item={item} />
-              </Link>
-            </li>
-          ))}
-        </ul>
+          <ListingCollection
+            title="Apartments Near University of the Philippines - Cebu"
+            listings={listings}
+          />
         )}
 
-        <div className="ml-3">
-          <h1 className=" font-sans font-light tracking-wid sm:text-2xl">
-          Popular apartments
-          </h1>
-        </div>
-        {/* Listings */}
         {!loading && !error && (
-          <ul className="flex w-full overflow-x-auto overflow-y-hidden mb-10">
-          {listings.map((item) => (
-            <li key={item.id}>
-              <Link href={`/listings/${item.id}`}>
-                <Listing item={item} />
-              </Link>
-            </li>
-          ))}
-        </ul>
+          <ListingCollection
+            title="Budget Friendly Apartments"
+            listings={listings}
+          />
         )}
 
-      <div className="ml-3">
-          <h1 className=" font-sans font-light tracking-wid sm:text-2xl">
-          Budget Friendly Apartments
-          </h1>
-        </div>
-        {/* Listings */}
         {!loading && !error && (
-          <ul className="flex w-full overflow-x-auto overflow-y-hidden mb-10">
-          {listings.map((item) => (
-            <li key={item.id}>
-              <Link href={`/listings/${item.id}`}>
-                <Listing item={item} />
-              </Link>
-            </li>
-          ))}
-        </ul>
+          <ListingCollection
+            title="Perfect for Students Apartments"
+            listings={listings}
+          />
         )}
 
-      <div className="ml-3">
-          <h1 className=" font-sans font-light tracking-wid sm:text-2xl">
-          Perfect for Students Apartments
-          </h1>
-        </div>
-        {/* Listings */}
         {!loading && !error && (
-          <ul className="flex w-full overflow-x-auto overflow-y-hidden mb-10">
-          {listings.map((item) => (
-            <li key={item.id}>
-              <Link href={`/listings/${item.id}`}>
-                <Listing item={item} />
-              </Link>
-            </li>
-          ))}
-        </ul>
+          <ListingCollection
+            title="Apartments Near University of the Philippines - Cebu"
+            listings={listings}
+          />
         )}
-
-
       </main>
     </div>
   );
