@@ -1,9 +1,11 @@
+@import url('https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400..900;1,400..900&display=swap');
 @import "tailwindcss";
 
+/* rest of your file... */
 :root {
   /* Base */
-  --background: #fef6e7;   /* warm light */
-  --foreground: #111827;   /* deep navy text */
+  --background: #fef6e7;
+  --foreground: #111827;
 
   /* Brand */
   --primary: #ff7a2f;
@@ -14,12 +16,8 @@
   --muted: #6b7280;
   --border: #e5e7eb;
 
-  /* Accent (optional Airbnb-ish highlight) */
-  /* --accent: #ff7a2f; */
   --accent: #ff7a2f;
-
   --navbar: #f2ede3;
-
   --hero-bg: url("/herobg.jpg");
 }
 
@@ -37,10 +35,9 @@
 
   --font-sans: var(--font-geist-sans);
   --font-mono: var(--font-geist-mono);
+  --font-playfair: 'Playfair Display', serif;
 }
 
 body {
-  /* background: var(--background); */
-  /* color: var(--foreground); */
   font-family: Arial, Helvetica, sans-serif;
 }

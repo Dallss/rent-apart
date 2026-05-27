@@ -9,7 +9,7 @@ export default function Home() {
       
       <img
         src="/herobg.png"
-        className="absolute inset-0 inset-y-[-100px] w-full h-[500px] object-cover"
+        className="absolute brightness-90 inset-0 inset-y-[-100px] w-full h-[500px] object-cover"
         alt=""
       />
 

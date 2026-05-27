@@ -22,13 +22,13 @@ export default function HomeHero() {
       style={{ opacity, y }}
       className="relative z-10 mb-8"
     >
-      <div className="mb-4 mt-10 text-center text-[55px] font-[700]">
-        <span className="text-white">
+      <div className="mb-4 mt-10 text-center text-[62px] font-[700]">
+        <span className="text-white font-playfair">
           Make your move easier
         </span>
       </div>
 
-      <div className="text-center text-sm text-white tracking-wider">
+      <div className="text-center text-m text-white tracking-wider ">
         From finding a place to settling in, we make long-term city living
         simple.
       </div>

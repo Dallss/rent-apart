@@ -96,7 +96,7 @@ export default function Listings() {
 
   return (
     <div className="flex min-h-full flex-col w-full max-w-screen-2xl mx-auto">
-      <main className="mx-auto w-full max-w-screen flex-1 px-4 py-8">
+      <main className="mx-auto w-full max-w-screen flex-1 px-4 py-8 border">
         
         {loading && ( <ListingLoading /> )}
         {/* Error state */}

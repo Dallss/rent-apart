@@ -22,7 +22,7 @@ function formatRent(n: number) {
    return (
      <article className="flex h-full flex-col w-[210px] overflow-hidden p-[10px]">
  
-       <div className="aspect-[1/1] overflow-hidden w-full rounded-2xl mb-[5px] shadow-xs">
+       <div className="aspect-[1/1] overflow-hidden w-full rounded-xl mb-[5px] shadow-xs">
          {item.image ? (
            <img
              src={item.image}

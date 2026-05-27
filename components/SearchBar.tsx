@@ -163,7 +163,7 @@ const filtered = where.trim()
   if (pathname !== "/") return null;
 
   return (
-    <div className="sticky top-2 z-30 flex justify-center m-5 p-1">
+    <div className="sticky top-2 z-30 flex justify-center m-1 p-1">
       <motion.div
         style={{ scale }}
         className="flex items-center w-full max-w-3xl origin-center bg-[var(--color-surface)] rounded-full shadow-sm border border-[var(--color-border)] overflow-visible"
