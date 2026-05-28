@@ -3,6 +3,7 @@ import { useEffect, useState } from "react";
 import ListingLoading from "./ListingLoading";
 import ListingCollection from "./ListingCollection"
 import ListingError from "./ListingError";
+import useRuntimeConfig from "@/hooks/useRuntimeConfig";
 
 type ApiListing = {
   id: number;
@@ -42,14 +43,13 @@ export default function Listings() {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
 
+  const { config } = useRuntimeConfig();
+
   useEffect(() => {
+    if(!config) return;
     async function loadListings() {
       try {
         setLoading(true);
-
-        // 1. get runtime config first
-        const configRes = await fetch("/api/config");
-        const config = await configRes.json();
 
         // 2. use runtime API URL
         const res = await fetch(`${config.apiUrl}/api/listings/`);
@@ -57,21 +57,10 @@ export default function Listings() {
         if (!res.ok) {
           throw new Error("Failed to fetch listings");
         }
-
-        //   ### Current data shape ###
-        // 
-        //   "id": 10,
-        //   "hero": {
-        //     "title": "Heritage Loft Near Colon Street — Fully Renovated",
-        //     "image": "https://images.unsplash.com/photo-1600047509807-ba8f99d2cdde?auto=format&fit=crop&w=1200&h=800&q=80",
-        //     "price": 16000,
-        //     "city": "Cebu City"
-        //   },
-        //   "listing_type": "",
-        //   "property_type": ""
         
-        const data: ApiListing[] = await res.json();
-
+        const response = await res.json();
+        const data = response.results as ApiListing[];
+        
         const mapped: Listing[] = data.map((item) => ({
           id: String(item.id),
           title: item.hero.title,
@@ -92,7 +81,7 @@ export default function Listings() {
     }
 
     loadListings();
-  }, []);
+  }, [config]);
 
   return (
     <div className="flex min-h-full flex-col w-full max-w-screen-2xl mx-auto">
