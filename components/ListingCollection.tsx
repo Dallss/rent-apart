@@ -10,15 +10,12 @@ import ListingCard from "./ListingCard";
 type ApiListing = {
   id: number;
 
-  hero: {
-    title: string;
-    image: string;
-    price: number;
-    city: string;
-  };
-
-  listing_type: string;
-  property_type: string;
+  title: string;
+  hero_image: string;
+  monthly_rent: number;
+  city: string;
+  bedrooms: string;
+  rating: number;
 };
 
 type PaginatedResponse<T> = {
@@ -71,6 +68,17 @@ export default function ListingCollection({
   const listings = useMemo(() => {
     return data?.pages.flatMap((page) => page.results) ?? [];
   }, [data]);
+  
+  const formattedListings = listings.map((item) => ({
+    id: item.id,
+    title: item.title,
+    neighborhood: item.city,
+    rent: item.monthly_rent,
+    bedrooms: item.bedrooms,
+    hero_image: item.hero_image,
+    rating: item.rating,
+    blurb: "",
+  }));
 
   if (isLoading) {
     return <ListingLoading/>;
@@ -90,16 +98,16 @@ export default function ListingCollection({
 
       <ul className="flex w-full gap-3 overflow-x-auto overflow-y-hidden px-3">
 
-        {listings.map((item) => (
-          <li
-            key={item.id}
-            className="shrink-0"
-          >
-            <Link href={`/listings/${item.id}`}>
-              <ListingCard item={item.hero} />
-            </Link>
-          </li>
-        ))}
+      {formattedListings.map((item) => (
+        <li
+          key={item.id}
+          className="shrink-0"
+        >
+          <Link href={`/listings/${item.id}`}>
+            <ListingCard item={item} />
+          </Link>
+        </li>
+      ))}
 
         {hasNextPage && (
           <li className="flex items-center">
