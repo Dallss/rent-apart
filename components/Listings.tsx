@@ -87,39 +87,15 @@ export default function Listings() {
     <div className="flex min-h-full flex-col w-full max-w-screen-2xl mx-auto">
       <main className="mx-auto w-full max-w-screen flex-1 px-4 py-8 border">
         
-        {loading && ( <ListingLoading /> )}
-        {/* Error state */}
-        {error && (
-          <ListingError />
-        )}
-        {/* Listings */}
-        {!loading && !error && (
+
+        { config && (
           <ListingCollection
             title="Apartments Near University of the Philippines - Cebu"
-            listings={listings}
+            api={`${config.apiUrl}/api/listings/`}
           />
         )}
 
-        {!loading && !error && (
-          <ListingCollection
-            title="Budget Friendly Apartments"
-            listings={listings}
-          />
-        )}
 
-        {!loading && !error && (
-          <ListingCollection
-            title="Perfect for Students Apartments"
-            listings={listings}
-          />
-        )}
-
-        {!loading && !error && (
-          <ListingCollection
-            title="Apartments Near University of the Philippines - Cebu"
-            listings={listings}
-          />
-        )}
       </main>
     </div>
   );
