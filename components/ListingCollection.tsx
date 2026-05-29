@@ -1,8 +1,9 @@
 "use client";
 
 import Link from "next/link";
-import { useMemo, useEffect } from "react";
+import { useMemo } from "react";
 import { useInfiniteQuery } from "@tanstack/react-query";
+import ListingLoading from "./ListingLoading";
 
 import ListingCard from "./ListingCard";
 
@@ -72,7 +73,7 @@ export default function ListingCollection({
   }, [data]);
 
   if (isLoading) {
-    return <div>Loading listings...</div>;
+    return <ListingLoading/>;
   }
 
   if (isError) {
@@ -82,12 +83,13 @@ export default function ListingCollection({
   return (
     <div className="mb-8">
       <div className="ml-3 mb-3">
-        <h1 className="font-playfair text-xl font-light tracking-wide">
+        <h1 className="text-xl font-thin tracking-wide">
           {title}
         </h1>
       </div>
 
       <ul className="flex w-full gap-3 overflow-x-auto overflow-y-hidden px-3">
+
         {listings.map((item) => (
           <li
             key={item.id}
@@ -103,10 +105,10 @@ export default function ListingCollection({
           <li className="flex items-center">
             <button
               onClick={() => fetchNextPage()}
-              disabled={isFetchingNextPage}
+              disabled={ isFetchingNextPage}
               className="rounded border px-4 py-2 text-sm"
             >
-              {isFetchingNextPage
+              { isFetchingNextPage
                 ? "Loading..."
                 : "Load more"}
             </button>
