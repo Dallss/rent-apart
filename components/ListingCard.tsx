@@ -8,7 +8,8 @@ type ListingProps = {
      rent: number;
      bedrooms: number;
      blurb: string;
-     image?: string;
+     hero_image?: string;
+     rating: string | null;
    };
  };
  
