@@ -2,14 +2,16 @@
 
 import Link from "next/link";
 import { useMemo } from "react";
-import { useInfiniteQuery } from "@tanstack/react-query";
-import ListingLoading from "./ListingLoading";
+import {
+  useInfiniteQuery,
+  InfiniteData,
+} from "@tanstack/react-query";
 
+import ListingLoading from "./ListingLoading";
 import ListingCard from "./ListingCard";
 
 type ApiListing = {
   id: number;
-
   title: string;
   hero_image: string;
   monthly_rent: number;
@@ -44,7 +46,10 @@ export default function ListingCollection({
     isFetchingNextPage,
   } = useInfiniteQuery<
     PaginatedResponse<ApiListing>,
-    Error
+    Error,
+    InfiniteData<PaginatedResponse<ApiListing>>,
+    [string, string],
+    string
   >({
     queryKey: ["listings", api],
 
@@ -66,22 +71,27 @@ export default function ListingCollection({
   });
 
   const listings = useMemo(() => {
-    return data?.pages.flatMap((page) => page.results) ?? [];
+    return (
+      data?.pages.flatMap((page) => page.results) ?? []
+    );
   }, [data]);
-  
+
   const formattedListings = listings.map((item) => ({
-    id: item.id,
+    id: String(item.id),
     title: item.title,
     neighborhood: item.city,
     rent: item.monthly_rent,
-    bedrooms: item.bedrooms,
+    bedrooms: Number(item.bedrooms),
     hero_image: item.hero_image,
-    rating: item.rating,
+    rating:
+      item.rating == null
+        ? null
+        : String(item.rating),
     blurb: "",
   }));
 
   if (isLoading) {
-    return <ListingLoading/>;
+    return <ListingLoading />;
   }
 
   if (isError) {
@@ -97,26 +107,25 @@ export default function ListingCollection({
       </div>
 
       <ul className="flex w-full gap-3 overflow-x-auto overflow-y-hidden px-3">
-
-      {formattedListings.map((item) => (
-        <li
-          key={item.id}
-          className="shrink-0"
-        >
-          <Link href={`/listings/${item.id}`}>
-            <ListingCard item={item} />
-          </Link>
-        </li>
-      ))}
+        {formattedListings.map((item) => (
+          <li
+            key={item.id}
+            className="shrink-0"
+          >
+            <Link href={`/listings/${item.id}`}>
+              <ListingCard item={item} />
+            </Link>
+          </li>
+        ))}
 
         {hasNextPage && (
           <li className="flex items-center">
             <button
               onClick={() => fetchNextPage()}
-              disabled={ isFetchingNextPage}
+              disabled={isFetchingNextPage}
               className="rounded border px-4 py-2 text-sm"
             >
-              { isFetchingNextPage
+              {isFetchingNextPage
                 ? "Loading..."
                 : "Load more"}
             </button>
