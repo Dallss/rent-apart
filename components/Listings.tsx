@@ -11,7 +11,7 @@ export default function Listings() {
       <main className="mx-auto w-full max-w-screen flex-1 px-4 py-8 border">
         { config && (
           <ListingCollection
-            title="Apartments Near University of the Philippines - Cebu"
+            title="Apartments"
             api={`${config.apiUrl}/api/listings/`}
           />
         )}

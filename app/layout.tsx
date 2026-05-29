@@ -5,7 +5,7 @@ import { Geist, Geist_Mono } from "next/font/google";
 import "./globals.css";
 
 import { NavBar } from "@/components/NavBar";
-import { QueryProvider } from "./queryProvider";
+import { QueryProvider } from "../providers/queryProvider";
 
 
 const geistSans = Geist({
