@@ -5,6 +5,7 @@ import { Geist, Geist_Mono } from "next/font/google";
 import "./globals.css";
 
 import { NavBar } from "@/components/NavBar";
+import { QueryProvider } from "../providers/queryProvider";
 
 
 const geistSans = Geist({
@@ -33,12 +34,14 @@ export default function RootLayout({
       className={`${geistSans.variable} ${geistMono.variable} h-full antialiased`}
     >
       <body className="flex min-h-full flex-col">
+        <QueryProvider> 
         <AuthProvider>
 
           <NavBar />
           {children}
           
         </AuthProvider>
+        </QueryProvider> 
       </body>
     </html>
   );
