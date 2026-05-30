@@ -6,7 +6,7 @@ import { Geist, Geist_Mono } from "next/font/google";
 import "./globals.css";
 
 import { NavBar } from "@/components/NavBar";
-import { QueryProvider } from "../providers/queryProvider";
+import Providers from "@/providers/Providers";
 
 const geistSans = Geist({
   variable: "--font-geist-sans",
@@ -39,12 +39,12 @@ export default function RootLayout({
           strategy="afterInteractive"
         />
 
-        <QueryProvider>
-          <AuthProvider>
+        <AuthProvider>
+          <Providers>
             <NavBar />
             {children}
-          </AuthProvider>
-        </QueryProvider>
+          </Providers>
+        </AuthProvider>
       </body>
     </html>
   );
