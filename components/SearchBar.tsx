@@ -15,6 +15,7 @@ export default function SearchBar() {
   const [type, setType] = useState("Any type");
   const [where, setWhere] = useState("");
   const [open, setOpen] = useState(false);
+  const debounceRef = useRef<NodeJS.Timeout | null>(null);
 
   const [predictions, setPredictions] = useState<
     google.maps.places.AutocompletePrediction[]
@@ -46,49 +47,59 @@ export default function SearchBar() {
     setWhere(value);
     setOpen(true);
   
-    console.log("Google loaded:", !!window.google);
-    console.log("Maps loaded:", !!window.google?.maps);
-    console.log("Places loaded:", !!window.google?.maps?.places);
-  
-    // Create service if it doesn't exist yet
-    if (
-      !autocompleteService.current &&
-      window.google?.maps?.places
-    ) {
-      autocompleteService.current =
-        new window.google.maps.places.AutocompleteService();
-  
-      console.log("Created AutocompleteService");
-    }
-  
-    console.log("Service:", autocompleteService.current);
-  
     if (!value.trim()) {
       setPredictions([]);
-      return;
-    }
   
-    if (!autocompleteService.current) {
-      console.error("AutocompleteService unavailable");
-      return;
-    }
-  
-    autocompleteService.current.getPlacePredictions(
-      {
-        input: value,
-        componentRestrictions: {
-          country: "ph",
-        },
-        types: ["geocode"],
-      },
-      (results, status) => {
-        console.log("Status:", status);
-        console.log("Results:", results);
-  
-        setPredictions(results || []);
+      if (debounceRef.current) {
+        clearTimeout(debounceRef.current);
       }
-    );
+  
+      return;
+    }
+  
+    if (debounceRef.current) {
+      clearTimeout(debounceRef.current);
+    }
+  
+    debounceRef.current = setTimeout(() => {
+      if (
+        !autocompleteService.current &&
+        window.google?.maps?.places
+      ) {
+        autocompleteService.current =
+          new window.google.maps.places.AutocompleteService();
+      }
+  
+      if (!autocompleteService.current) {
+        console.error("AutocompleteService unavailable");
+        return;
+      }
+  
+      autocompleteService.current.getPlacePredictions(
+        {
+          input: value,
+          componentRestrictions: {
+            country: "ph",
+          },
+          types: ["geocode"],
+        },
+        (results, status) => {
+          console.log("Status:", status);
+  
+          if (
+            status !== google.maps.places.PlacesServiceStatus.OK
+          ) {
+            setPredictions([]);
+            return;
+          }
+  
+          setPredictions(results || []);
+        }
+      );
+    }, 400);
   };
+
+
   if (pathname !== "/") return null;
 
   return (
