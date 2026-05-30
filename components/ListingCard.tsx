@@ -2,6 +2,7 @@
 import Image from "next/image";
 import { Heart } from "lucide-react";
 import { useState } from "react";
+import { useAuth } from "@/lib/auth-context";
 
 type ListingProps = {
    item: {
@@ -26,8 +27,14 @@ function formatRent(n: number) {
 
 export default function ListingCard({ item }: ListingProps) {
   const [isFavorite, setIsFavorite] = useState(false);
+  const { isSignedIn, setShowAuthModal } = useAuth();
 
   function toggleFavorite() {
+    if (!isSignedIn) {
+      setShowAuthModal(true);
+      return;
+    }
+  
     setIsFavorite((prev) => !prev);
   }
 
