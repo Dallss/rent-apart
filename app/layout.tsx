@@ -1,21 +1,11 @@
 import type { Metadata } from "next";
 import { AuthProvider } from "@/lib/auth-context";
-import { Geist, Geist_Mono } from "next/font/google";
-
-import "./globals.css";
-
+import { geistSans, geistMono } from "@/lib/fonts";
 import { NavBar } from "@/components/NavBar";
 import Providers from "@/providers/Providers";
 
-const geistSans = Geist({
-  variable: "--font-geist-sans",
-  subsets: ["latin"],
-});
+import "./globals.css";
 
-const geistMono = Geist_Mono({
-  variable: "--font-geist-mono",
-  subsets: ["latin"],
-});
 
 export const metadata: Metadata = {
   title: "Rent Apart",
