@@ -99,6 +99,14 @@ export default function SearchBar() {
     }, 400);
   };
 
+  // Cleanup: deletes debounce useref on unmount 
+  useEffect(() => {
+    return () => {
+      if (debounceRef.current) {
+        clearTimeout(debounceRef.current);
+      }
+    };
+  }, []);
 
   if (pathname !== "/") return null;
 
