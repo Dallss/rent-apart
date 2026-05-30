@@ -18,7 +18,6 @@ import {
 } from "react";
 
 import AuthModal from "@/modals/AuthModal";
-import Script from "next/script";
 
 type AuthContextValue = {
   ready: boolean;
@@ -28,6 +27,7 @@ type AuthContextValue = {
   canManageLeases: boolean;
   authError: string | null;
   clearAuthError: () => void;
+
   signInWithGoogleCredential: (credential: string) => Promise<void>;
   signOut: () => void;
 
@@ -39,16 +39,16 @@ const AuthContext = createContext<AuthContextValue | null>(null);
 
 export function AuthProvider({ children }: { children: React.ReactNode }) {
   const [ready, setReady] = useState(false);
+
   const [isSignedIn, setIsSignedIn] = useState(false);
   const [userEmail, setUserEmail] = useState<string | null>(null);
   const [canManageLeases, setCanManageLeases] = useState(false);
-  const [authError, setAuthError] = useState<string | null>(null);
 
+  const [authError, setAuthError] = useState<string | null>(null);
   const [showAuthModal, setShowAuthModal] = useState(false);
-  const [gsiReady, setGsiReady] = useState(false);
 
   // -------------------------
-  // Load stored session
+  // Load session
   // -------------------------
   useEffect(() => {
     startTransition(() => {
@@ -63,6 +63,9 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
 
   const clearAuthError = useCallback(() => setAuthError(null), []);
 
+  // -------------------------
+  // Backend verification (UNCHANGED)
+  // -------------------------
   const signInWithGoogleCredential = useCallback(async (credential: string) => {
     setAuthError(null);
 
@@ -76,6 +79,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
       setIsSignedIn(Boolean(accessToken));
       setUserEmail(email);
       setCanManageLeases(canManageLeases);
+
       setShowAuthModal(false);
     } catch (err) {
       const message = err instanceof Error ? err.message : "Sign-in failed";
@@ -83,45 +87,19 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     }
   }, []);
 
+  // -------------------------
+  // Sign out (simplified)
+  // -------------------------
   const signOut = useCallback(() => {
     clearStoredSession();
 
     setIsSignedIn(false);
     setUserEmail(null);
     setCanManageLeases(false);
-
-    try {
-      window.google?.accounts.id.disableAutoSelect();
-    } catch {
-      // ignore
-    }
   }, []);
 
   // -------------------------
-  // SAFE Google init (FIXED)
-  // -------------------------
-  useEffect(() => {
-    if (!gsiReady) return;
-
-    const clientId = process.env.NEXT_PUBLIC_GOOGLE_CLIENT_ID;
-    if (!clientId) {
-      console.error("Missing Google Client ID");
-      return;
-    }
-
-    const g = window.google;
-    if (!g?.accounts?.id) return;
-
-    g.accounts.id.initialize({
-      client_id: clientId,
-      callback: (res: any) => {
-        signInWithGoogleCredential(res.credential);
-      },
-    });
-  }, [gsiReady, signInWithGoogleCredential]);
-
-  // -------------------------
-  // Context value
+  // Context
   // -------------------------
   const value = useMemo<AuthContextValue>(
     () => ({
@@ -132,6 +110,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
       canManageLeases,
       authError,
       clearAuthError,
+
       signInWithGoogleCredential,
       signOut,
 
@@ -155,14 +134,6 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     <AuthContext.Provider value={value}>
       {children}
 
-      {/* Google Identity Script */}
-      <Script
-        src="https://accounts.google.com/gsi/client"
-        strategy="afterInteractive"
-        onLoad={() => setGsiReady(true)}
-      />
-
-      {/* Modal */}
       {showAuthModal && (
         <AuthModal
           open={showAuthModal}
