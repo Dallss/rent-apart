@@ -106,7 +106,7 @@ export default function ListingCollection({
         </h1>
       </div>
 
-      <ul className="flex w-full gap-3 overflow-x-auto overflow-y-hidden px-3">
+      <ul className="flex w-full gap-3 overflow-x-auto overflow-y-hidden px-3 scrollbar-hide">
         {formattedListings.map((item) => (
           <li
             key={item.id}

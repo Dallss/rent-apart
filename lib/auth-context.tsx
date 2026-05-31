@@ -6,6 +6,7 @@ import {
   postGoogleIdToken,
   readStoredSession,
 } from "@/lib/auth-api";
+
 import {
   createContext,
   startTransition,
@@ -16,6 +17,8 @@ import {
   useState,
 } from "react";
 
+import AuthModal from "@/modals/AuthModal";
+
 type AuthContextValue = {
   ready: boolean;
   isSignedIn: boolean;
@@ -24,22 +27,33 @@ type AuthContextValue = {
   canManageLeases: boolean;
   authError: string | null;
   clearAuthError: () => void;
+
   signInWithGoogleCredential: (credential: string) => Promise<void>;
   signOut: () => void;
+
+  showAuthModal: boolean;
+  setShowAuthModal: (v: boolean) => void;
 };
 
 const AuthContext = createContext<AuthContextValue | null>(null);
 
 export function AuthProvider({ children }: { children: React.ReactNode }) {
   const [ready, setReady] = useState(false);
+
   const [isSignedIn, setIsSignedIn] = useState(false);
   const [userEmail, setUserEmail] = useState<string | null>(null);
   const [canManageLeases, setCanManageLeases] = useState(false);
-  const [authError, setAuthError] = useState<string | null>(null);
 
+  const [authError, setAuthError] = useState<string | null>(null);
+  const [showAuthModal, setShowAuthModal] = useState(false);
+
+  // -------------------------
+  // Load session
+  // -------------------------
   useEffect(() => {
     startTransition(() => {
       const { accessToken, email, canManageLeases } = readStoredSession();
+
       setIsSignedIn(Boolean(accessToken));
       setUserEmail(email);
       setCanManageLeases(canManageLeases);
@@ -49,33 +63,44 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
 
   const clearAuthError = useCallback(() => setAuthError(null), []);
 
+  // -------------------------
+  // Backend verification (UNCHANGED)
+  // -------------------------
   const signInWithGoogleCredential = useCallback(async (credential: string) => {
     setAuthError(null);
+
     try {
       const data = await postGoogleIdToken(credential);
+
       persistSession(data, credential);
+
       const { accessToken, email, canManageLeases } = readStoredSession();
+
       setIsSignedIn(Boolean(accessToken));
       setUserEmail(email);
       setCanManageLeases(canManageLeases);
+
+      setShowAuthModal(false);
     } catch (err) {
       const message = err instanceof Error ? err.message : "Sign-in failed";
       setAuthError(message);
     }
   }, []);
 
+  // -------------------------
+  // Sign out (simplified)
+  // -------------------------
   const signOut = useCallback(() => {
     clearStoredSession();
+
     setIsSignedIn(false);
     setUserEmail(null);
     setCanManageLeases(false);
-    try {
-      window.google?.accounts.id.disableAutoSelect();
-    } catch {
-      /* ignore */
-    }
   }, []);
 
+  // -------------------------
+  // Context
+  // -------------------------
   const value = useMemo<AuthContextValue>(
     () => ({
       ready,
@@ -85,19 +110,42 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
       canManageLeases,
       authError,
       clearAuthError,
+
       signInWithGoogleCredential,
       signOut,
+
+      showAuthModal,
+      setShowAuthModal,
     }),
-    [ready, isSignedIn, userEmail, canManageLeases, authError, clearAuthError, signInWithGoogleCredential, signOut],
+    [
+      ready,
+      isSignedIn,
+      userEmail,
+      canManageLeases,
+      authError,
+      clearAuthError,
+      signInWithGoogleCredential,
+      signOut,
+      showAuthModal,
+    ]
   );
 
-  return <AuthContext.Provider value={value}>{children}</AuthContext.Provider>;
+  return (
+    <AuthContext.Provider value={value}>
+      {children}
+
+      {showAuthModal && (
+        <AuthModal
+          open={showAuthModal}
+          onClose={() => setShowAuthModal(false)}
+        />
+      )}
+    </AuthContext.Provider>
+  );
 }
 
 export function useAuth(): AuthContextValue {
   const ctx = useContext(AuthContext);
-  if (!ctx) {
-    throw new Error("useAuth must be used within AuthProvider");
-  }
+  if (!ctx) throw new Error("useAuth must be used within AuthProvider");
   return ctx;
 }

@@ -1,22 +1,12 @@
 import type { Metadata } from "next";
 import { AuthProvider } from "@/lib/auth-context";
-import { Geist, Geist_Mono } from "next/font/google";
+import { geistSans, geistMono } from "@/lib/fonts";
+import { NavBar } from "@/components/NavBar";
+import Providers from "@/providers/Providers";
+import { GoogleOAuthProvider } from "@react-oauth/google";
 
 import "./globals.css";
 
-import { NavBar } from "@/components/NavBar";
-import { QueryProvider } from "../providers/queryProvider";
-
-
-const geistSans = Geist({
-  variable: "--font-geist-sans",
-  subsets: ["latin"],
-});
-
-const geistMono = Geist_Mono({
-  variable: "--font-geist-mono",
-  subsets: ["latin"],
-});
 
 export const metadata: Metadata = {
   title: "Rent Apart",
@@ -34,14 +24,19 @@ export default function RootLayout({
       className={`${geistSans.variable} ${geistMono.variable} h-full antialiased`}
     >
       <body className="flex min-h-full flex-col">
-        <QueryProvider> 
+      <GoogleOAuthProvider
+      clientId={process.env.NEXT_PUBLIC_GOOGLE_CLIENT_ID!}
+      >
         <AuthProvider>
-
-          <NavBar />
-          {children}
+        
+          
+          <Providers>
+            <NavBar />
+            {children}
+          </Providers>
           
         </AuthProvider>
-        </QueryProvider> 
+        </GoogleOAuthProvider>
       </body>
     </html>
   );
