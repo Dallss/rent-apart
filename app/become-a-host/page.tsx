@@ -1,9 +1,9 @@
 "use client";
 
-import { useAuth } from "@/lib/auth/context";
-import { getAuthorizationHeader } from "@/lib/auth/api";
+import { useAuth } from "@/providers/authProvider";
+import { getAuthorizationHeader } from "@/lib/auth/storage";
 import { useRouter } from "next/navigation";
-import { useCallback, useEffect, useRef, useState } from "react";
+import { useCallback, useRef, useState } from "react";
 
 type Step = "form" | "pending";
 
