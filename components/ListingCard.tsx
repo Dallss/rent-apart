@@ -2,7 +2,7 @@
 import Image from "next/image";
 import { Heart } from "lucide-react";
 import { useState } from "react";
-import { useAuth } from "@/lib/auth-context";
+import { useAuth } from "@/providers/AuthProvider";
 
 type ListingProps = {
    item: {
@@ -67,6 +67,7 @@ export default function ListingCard({ item }: ListingProps) {
             src={item.hero_image}
             alt={item.title}
             fill
+            sizes="210px"
             className="object-cover"
           />
         ) : (

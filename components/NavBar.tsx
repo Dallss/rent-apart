@@ -1,6 +1,6 @@
 "use client";
 
-import { useAuth } from "@/lib/auth-context";
+import { useAuth } from "@/providers/AuthProvider";
 import { getGoogleClientId } from "@/lib/env";
 import Script from "next/script";
 import { useCallback, useEffect, useRef, useState } from "react";
@@ -49,6 +49,7 @@ function GoogleSignInSlot({ disabled }: { disabled: boolean }) {
   const { isSignedIn, signInWithGoogleCredential } = useAuth();
   const btnRef = useRef<HTMLDivElement>(null);
   const clientId = getGoogleClientId();
+  const initializedRef = useRef(false);
 
   const handleCredential = useCallback(
     (response: { credential: string }) => {
@@ -59,7 +60,7 @@ function GoogleSignInSlot({ disabled }: { disabled: boolean }) {
 
   useEffect(() => {
     if (disabled || isSignedIn || !clientId || !btnRef.current) return;
-
+    if (initializedRef.current) return;
     const el = btnRef.current;
     el.innerHTML = "";
 
@@ -80,8 +81,11 @@ function GoogleSignInSlot({ disabled }: { disabled: boolean }) {
       logo_alignment: "left",
     });
 
+    initializedRef.current = true;
+
     return () => {
       el.innerHTML = "";
+      initializedRef.current = false;
     };
   }, [disabled, isSignedIn, clientId, handleCredential]);
 

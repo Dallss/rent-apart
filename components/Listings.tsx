@@ -1,6 +1,7 @@
 "use client";
 import ListingCollection from "./ListingCollection";
 import useRuntimeConfig from "@/hooks/useRuntimeConfig";
+import Image from "next/image";
 
 function NeighborhoodCard({
   title,
@@ -10,16 +11,14 @@ function NeighborhoodCard({
   image: string;
 }) {
   return (
-    <div
-      className="flex-1 h-28 rounded-xl overflow-hidden relative
-                 flex items-center justify-center text-center
-                 shadow-sm hover:shadow-md transition"
-      style={{
-        backgroundImage: `url('${image}')`,
-        backgroundSize: "cover",
-        backgroundPosition: "center",
-      }}
-    >
+    <div className="flex-1 h-28 rounded-xl overflow-hidden relative flex items-center justify-center text-center shadow-sm hover:shadow-md transition">
+      <Image
+        src={image}
+        alt={title}
+        fill
+        sizes="(max-width: 768px) 100vw, 33vw"
+        className="object-cover"
+      />
       <div className="absolute inset-0 bg-black/40" />
       <div className="relative text-white font-semibold text-l">
         {title}
