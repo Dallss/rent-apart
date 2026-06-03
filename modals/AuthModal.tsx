@@ -1,7 +1,7 @@
 "use client";
 
 import { GoogleLogin } from "@react-oauth/google";
-import { useAuth } from "@/lib/auth/context";
+import { useAuth } from "@/providers/authProvider";
 
 
 // NOTE: Handle FedCM and Onetap

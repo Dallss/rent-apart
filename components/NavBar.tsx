@@ -1,6 +1,6 @@
 "use client";
 
-import { useAuth } from "@/lib/auth/context";
+import { useAuth } from "@/providers/authProvider";
 import { getGoogleClientId } from "@/lib/env";
 import Script from "next/script";
 import { useCallback, useEffect, useRef, useState } from "react";
