@@ -1,11 +1,7 @@
 "use client";
 
-import {
-  clearStoredSession,
-  persistSession,
-  postGoogleIdToken,
-  readStoredSession,
-} from "@/lib/auth-api";
+import { postGoogleIdToken } from "@/lib/auth/api";
+import { clearStoredSession, persistSession, readStoredSession } from "@/lib/auth/storage";
 
 import {
   createContext,

@@ -1,8 +1,10 @@
 "use client";
 
 import { GoogleLogin } from "@react-oauth/google";
-import { useAuth } from "@/lib/auth-context";
+import { useAuth } from "@/lib/auth/context";
 
+
+// NOTE: Handle FedCM and Onetap
 export default function AuthModal({
   open,
   onClose,

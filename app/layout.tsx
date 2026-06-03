@@ -1,8 +1,8 @@
 import type { Metadata } from "next";
-import { AuthProvider } from "@/lib/auth-context";
+import { AuthProvider } from "@/lib/auth/context";
 import { geistSans, geistMono } from "@/lib/fonts";
 import { NavBar } from "@/components/NavBar";
-import Providers from "@/providers/Providers";
+import Providers from "@/providers";
 import { GoogleOAuthProvider } from "@react-oauth/google";
 
 import "./globals.css";
