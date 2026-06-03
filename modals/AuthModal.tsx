@@ -1,7 +1,7 @@
 "use client";
 
 import { GoogleLogin, CredentialResponse } from "@react-oauth/google";
-import { useAuth } from "@/providers/authProvider";
+import { useAuth } from "@/providers/AuthProvider";
 
 export default function AuthModal({
   open,
