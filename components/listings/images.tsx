@@ -20,6 +20,7 @@ export default function Images({ images }: { images: ListingImage[] }) {
             alt={primary.caption}
             fill
             priority
+            sizes="(max-width: 768px) 100vw, 50vw"
             className="object-cover rounded-3xl"
           />
         </div>
@@ -33,6 +34,7 @@ export default function Images({ images }: { images: ListingImage[] }) {
               src={img.image_url}
               alt={img.caption}
               fill
+              sizes="(max-width: 768px) 50vw, 25vw"
               className="object-cover rounded-2xl"
             />
           </div>

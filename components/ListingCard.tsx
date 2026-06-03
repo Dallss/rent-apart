@@ -67,6 +67,7 @@ export default function ListingCard({ item }: ListingProps) {
             src={item.hero_image}
             alt={item.title}
             fill
+            sizes="210px"
             className="object-cover"
           />
         ) : (
