@@ -2,30 +2,10 @@
 
 import Link from "next/link";
 import { useMemo } from "react";
-import {
-  useInfiniteQuery,
-  InfiniteData,
-} from "@tanstack/react-query";
-
 import ListingLoading from "./ListingLoading";
 import ListingCard from "./ListingCard";
+import useLazyFetchApartments from "@/hooks/useLazyFetchApartments";
 
-type ApiListing = {
-  id: number;
-  title: string;
-  hero_image: string;
-  monthly_rent: number;
-  city: string;
-  bedrooms: string;
-  rating: number;
-};
-
-type PaginatedResponse<T> = {
-  count: number;
-  next: string | null;
-  previous: string | null;
-  results: T[];
-};
 
 type ListingsSectionProps = {
   title: string;
@@ -44,31 +24,7 @@ export default function ListingCollection({
     fetchNextPage,
     hasNextPage,
     isFetchingNextPage,
-  } = useInfiniteQuery<
-    PaginatedResponse<ApiListing>,
-    Error,
-    InfiniteData<PaginatedResponse<ApiListing>>,
-    [string, string],
-    string
-  >({
-    queryKey: ["listings", api],
-
-    initialPageParam: api,
-
-    queryFn: async ({ pageParam }) => {
-      const res = await fetch(pageParam);
-
-      if (!res.ok) {
-        throw new Error("Failed to fetch listings");
-      }
-
-      return res.json();
-    },
-
-    getNextPageParam: (lastPage) => {
-      return lastPage.next ?? undefined;
-    },
-  });
+  } = useLazyFetchApartments({ api, params: { city: "Cebu City" } });
 
   const listings = useMemo(() => {
     return (
@@ -95,7 +51,7 @@ export default function ListingCollection({
   }
 
   if (isError) {
-    return <div>{error.message}</div>;
+    return <div>{error?.message ?? "Something went wrong"}</div>;
   }
 
   return (
