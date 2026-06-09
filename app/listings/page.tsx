@@ -4,7 +4,8 @@
 // NOTE: this page is deactivated due to error im postponing to fix
 import Link from "next/link";
 import { useEffect, useRef, useState } from "react";
-import ListingCard from "@/app/components/ListingCard";
+import ListingList from "./components/ListingList";
+import Searchbar from "./components/Searchbar";
 
 const MOCK_LISTINGS = [
   {
@@ -275,37 +276,16 @@ export default function NearUPCebuPage() {
     <div className="flex h-[calc(100vh-64px)] overflow-hidden">
 
       {/* ── Listings Panel ── */}
-      <div className="w-[55%] flex-shrink-0 overflow-y-auto px-6 py-6">
-        <div className="mb-5">
-          <h1 className="font-sans font-light tracking-wide sm:text-2xl">
-            Apartments Near University of the Philippines – Cebu
-          </h1>
-          <p className="text-sm text-zinc-400 mt-1">
-            {MOCK_LISTINGS.length} rentals · Lahug, Cebu City
-          </p>
-        </div>
+      <div className="flex flex-col w-[45%] flex-shrink-0 overflow-y-auto">
 
-        <ul className="flex flex-wrap gap-4">
-          {MOCK_LISTINGS.map((item) => (
-            <li
-              key={item.id}
-              ref={(el) => { listingRefs.current[item.id] = el; }}
-              onClick={() => toggle(item.id)}
-              className={`rounded-2xl border cursor-pointer transition-all ${
-                activeId === item.id
-                  ? "border-2 border-zinc-800 shadow-md"
-                  : "border-zinc-200 hover:border-zinc-300"
-              }`}
-            >
-              <Link
-                href={`/listings/${item.id}`}
-                onClick={(e) => e.preventDefault()}
-              >
-                <ListingCard item={item} />
-              </Link>
-            </li>
-          ))}
-        </ul>
+        <Searchbar />
+
+        <ListingList
+          items={MOCK_LISTINGS}
+          activeId={activeId}
+          onSelect={toggle}
+        />
+        
       </div>
 
       {/* ── Map Panel ── */}

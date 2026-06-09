@@ -6,7 +6,7 @@ import { usePathname } from "next/navigation";
 import { motion, useScroll, useTransform, AnimatePresence } from "framer-motion";
 import useSearch, { PROPERTY_TYPES } from "@/hooks/useSearch";
 
-export default function SearchBar() {
+export default function Searchbar() {
   const {
     where,
     type,
@@ -25,10 +25,10 @@ export default function SearchBar() {
   const scale = useTransform(scrollY, [0, 200], [1, 0.9]);
 
   return (
-    <div className="sticky top-2 z-30 flex justify-center m-1 p-1">
-      <motion.div
+    <div className="sticky z-30 flex justify-center  p-2 bg-background">
+      <motion.div 
         style={{ scale }}
-        className="flex items-center w-full max-w-3xl origin-center bg-[var(--color-surface)] rounded-full shadow-sm border border-[var(--color-border)] overflow-visible"
+        className="flex items-center w-full max-w-3xl origin-center bg-[var(--color-surface)] shadow-sm border border-[var(--color-border)] overflow-visible"
       >
         {/* WHERE */}
         <div className="flex-1 px-5 py-2 relative">
