@@ -1,112 +1,28 @@
 "use client";
 
 import { Search } from "lucide-react";
-import { useState, useRef, useEffect } from "react";
+import { useRef } from "react";
 import { usePathname } from "next/navigation";
-import {
-  motion,
-  useScroll,
-  useTransform,
-  AnimatePresence,
-} from "framer-motion";
-import NextLink from "next/link";
+import { motion, useScroll, useTransform, AnimatePresence } from "framer-motion";
+import useSearch, { PROPERTY_TYPES } from "@/hooks/useSearch";
 
 export default function SearchBar() {
-  const [type, setType] = useState("Any type");
-  const [where, setWhere] = useState("");
-  const [open, setOpen] = useState(false);
-  const debounceRef = useRef<NodeJS.Timeout | null>(null);
-
-  const [predictions, setPredictions] = useState<
-    google.maps.places.AutocompletePrediction[]
-  >([]);
+  const {
+    where,
+    type,
+    open,
+    predictions,
+    handleLocationChange,
+    selectPrediction,
+    setType,
+    setOpen,
+    search,
+  } = useSearch();
 
   const inputRef = useRef<HTMLInputElement>(null);
-  const autocompleteService =
-    useRef<google.maps.places.AutocompleteService | null>(null);
-
   const pathname = usePathname();
   const { scrollY } = useScroll();
   const scale = useTransform(scrollY, [0, 200], [1, 0.9]);
-
-  useEffect(() => {
-    if (
-      typeof window !== "undefined" &&
-      window.google?.maps?.places
-    ) {
-      autocompleteService.current =
-        new google.maps.places.AutocompleteService();
-    }
-  }, []);
-
-  const handleLocationChange = (
-    e: React.ChangeEvent<HTMLInputElement>
-  ) => {
-    const value = e.target.value;
-  
-    setWhere(value);
-    setOpen(true);
-  
-    if (!value.trim()) {
-      setPredictions([]);
-  
-      if (debounceRef.current) {
-        clearTimeout(debounceRef.current);
-      }
-  
-      return;
-    }
-  
-    if (debounceRef.current) {
-      clearTimeout(debounceRef.current);
-    }
-  
-    debounceRef.current = setTimeout(() => {
-      if (
-        !autocompleteService.current &&
-        window.google?.maps?.places
-      ) {
-        autocompleteService.current =
-          new window.google.maps.places.AutocompleteService();
-      }
-  
-      if (!autocompleteService.current) {
-        console.error("AutocompleteService unavailable");
-        return;
-      }
-  
-      autocompleteService.current.getPlacePredictions(
-        {
-          input: value,
-          componentRestrictions: {
-            country: "ph",
-          },
-          types: ["geocode"],
-        },
-        (results, status) => {
-          console.log("Status:", status);
-  
-          if (
-            status !== google.maps.places.PlacesServiceStatus.OK
-          ) {
-            setPredictions([]);
-            return;
-          }
-  
-          setPredictions(results || []);
-        }
-      );
-    }, 400);
-  };
-
-  // Cleanup: deletes debounce useref on unmount 
-  useEffect(() => {
-    return () => {
-      if (debounceRef.current) {
-        clearTimeout(debounceRef.current);
-      }
-    };
-  }, []);
 
   if (pathname !== "/") return null;
 
@@ -130,9 +46,7 @@ export default function SearchBar() {
             onFocus={() => setOpen(true)}
             onBlur={() => setTimeout(() => setOpen(false), 150)}
             onKeyDown={(e) => {
-              if (e.key === "Escape") {
-                setOpen(false);
-              }
+              if (e.key === "Escape") setOpen(false);
             }}
           />
 
@@ -162,20 +76,15 @@ export default function SearchBar() {
                     <div
                       key={prediction.place_id}
                       className="flex items-center gap-3 px-4 py-2.5 cursor-pointer hover:bg-[var(--color-border)]/50 transition-colors"
-                      onMouseDown={() => {
-                        setWhere(prediction.description);
-                        setOpen(false);
-                      }}
+                      onMouseDown={() => selectPrediction(prediction)}
                     >
                       <div className="w-8 h-8 rounded-lg bg-gray-100 flex items-center justify-center shrink-0">
                         📍
                       </div>
-
                       <div className="flex flex-col min-w-0">
                         <span className="text-sm font-medium truncate">
                           {prediction.structured_formatting.main_text}
                         </span>
-
                         <span className="text-xs text-gray-400 truncate">
                           {prediction.structured_formatting.secondary_text}
                         </span>
@@ -196,14 +105,14 @@ export default function SearchBar() {
 
           <select
             value={type}
-            onChange={(e) => setType(e.target.value)}
+            onChange={(e) => setType(e.target.value as keyof typeof PROPERTY_TYPES)}
             className="w-full bg-transparent outline-none text-sm"
           >
-            <option>Any type</option>
-            <option>Apartment</option>
-            <option>House</option>
-            <option>Condo</option>
-            <option>Studio</option>
+            {Object.entries(PROPERTY_TYPES).map(([key, label]) => (
+              <option key={key} value={key}>
+                {label}
+              </option>
+            ))}
           </select>
         </div>
 
@@ -213,19 +122,18 @@ export default function SearchBar() {
         <div className="flex items-center flex-1">
           <div className="flex-1 px-6">
             <p className="text-xs font-semibold">Who</p>
-
             <input
               className="w-full bg-transparent outline-none text-sm"
               placeholder="Add guests"
             />
           </div>
 
-          <NextLink
-            href="/"
+          <button
+            onClick={search}
             className="mr-2 h-12 w-12 rounded-full bg-[var(--color-primary)] flex items-center justify-center text-white"
           >
             <Search size={18} />
-          </NextLink>
+          </button>
         </div>
       </motion.div>
     </div>
