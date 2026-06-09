@@ -1,7 +1,7 @@
-import Listings from "./(components)/Listings";
-import HomeHero from "./(components)/HomeHero";
-import SearchBar from "./(components)/SearchBar";
-import Footer from "./(components)/Footer";
+import Listings from "./components/Listings";
+import HomeHero from "./components/HomeHero";
+import SearchBar from "./components/SearchBar";
+import Footer from "./components/Footer";
 
 export default function Home() {
   return (

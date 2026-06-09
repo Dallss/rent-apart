@@ -4,7 +4,7 @@
 // NOTE: this page is deactivated due to error im postponing to fix
 import Link from "next/link";
 import { useEffect, useRef, useState } from "react";
-import ListingCard from "@/app/(components)/ListingCard";
+import ListingCard from "@/app/components/ListingCard";
 
 const MOCK_LISTINGS = [
   {
