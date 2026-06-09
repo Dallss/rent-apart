@@ -1,7 +1,7 @@
 // app/listings/[id]/page.tsx
 
 import { notFound } from "next/navigation";
-import Images from "@/components/listings/images";
+import ListingImages from "./components/ListingImages";
 import Link from "next/link";
 
 interface ListingImage {
@@ -82,7 +82,7 @@ export default async function ListingDetailPage({
 
         {/* IMAGES */}
         <section className="overflow-hidden rounded-3xl mb-10">
-          <Images images={listing.images} />
+          <ListingImages images={listing.images} />
         </section>
 
         {/* MAIN GRID */}

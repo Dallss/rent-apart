@@ -6,7 +6,7 @@ interface ListingImage {
   caption: string;
 }
 
-export default function Images({ images }: { images: ListingImage[] }) {
+export default function ListingImages({ images }: { images: ListingImage[] }) {
   const [primary, ...rest] = images;
 
   return (
