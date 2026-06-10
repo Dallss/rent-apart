@@ -21,6 +21,7 @@ interface ListingMapProps {
 
 export interface ListingMapHandle {
   flyTo: (options: { lat: number; lng: number; zoom?: number }) => void;
+  getBounds: () => mapboxgl.LngLatBounds | null | undefined;
 }
 
 // ─── Inner: accesses useMap() ─────────────────────────────────────────────────
@@ -43,8 +44,10 @@ function FocusController({ listings, activeId, controllerRef }: {
     flyTo({ lat, lng, zoom = 13 }) {
       map?.flyTo({ center: [lng, lat], zoom, duration: 800 });
     },
+    getBounds() {
+      return map?.getMap().getBounds();
+    },
   }));
-
   return null;
 }
 

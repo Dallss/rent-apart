@@ -2,7 +2,7 @@
 
 import { useEffect, useMemo, useRef, useState } from "react";
 import ListingList from "./components/ListingList";
-import Searchbar from "./components/Searchbar";
+import Filterbar from "./components/FilterBar";
 import useRuntimeConfig from "@/hooks/useRuntimeConfig";
 import useLazyFetchApartments from "@/hooks/useLazyFetchApartments";
 import { useSearchParams } from "next/navigation";
@@ -106,7 +106,7 @@ export default function Page() {
     <div className="flex h-[calc(100vh-64px)] overflow-hidden">
       {/* LISTINGS */}
       <div className="flex flex-col w-[45%] overflow-y-auto">
-        <Searchbar />
+        <Filterbar />
         <ListingList
           listings={listings}
           activeId={activeId}
