@@ -5,6 +5,8 @@ import ListingList from "./components/ListingList";
 import Searchbar from "./components/Searchbar";
 import useRuntimeConfig from "@/hooks/useRuntimeConfig";
 import useLazyFetchApartments from "@/hooks/useLazyFetchApartments";
+import { useSearchParams } from "next/navigation";
+import { ListingMapHandle } from "./components/ListingMap";
 
 import dynamic from "next/dynamic";
 
@@ -18,6 +20,30 @@ const ListingMap = dynamic(
 export default function Page() {
   const { config } = useRuntimeConfig();
   const [activeId, setActiveId] = useState<string | null>(null);
+  const mapRef = useRef<ListingMapHandle>(null);
+
+
+  const searchParams = useSearchParams();
+  const placeId = searchParams.get("placeId");
+
+  useEffect(() => {
+    if (!placeId || !mapRef.current) return;
+  
+    const service = new google.maps.places.PlacesService(document.createElement("div"));
+    service.getDetails({ placeId, fields: ["geometry"] }, (result, status) => {
+      if (status !== google.maps.places.PlacesServiceStatus.OK || !result?.geometry?.location) return;
+  
+      mapRef.current?.flyTo({
+        lat: result.geometry.location.lat(),
+        lng: result.geometry.location.lng(),
+        zoom: 13,
+      });
+    });
+  }, [placeId]);
+
+  useEffect(() => {
+    setActiveId(null);
+  }, [searchParams]);
 
   const {
     data,
@@ -92,6 +118,7 @@ export default function Page() {
       {/* MAP */}
       <div className="flex-1 relative">
         <ListingMap
+          ref={mapRef}
           listings={listings}
           activeId={activeId}
           onSelect={toggle}

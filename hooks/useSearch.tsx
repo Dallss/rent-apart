@@ -1,6 +1,6 @@
 // useSearch.tsx
-import { useRef, useEffect, useState } from "react";
-import { useRouter } from "next/navigation";
+import { useRef, useEffect, useState, useCallback } from "react";
+import { useRouter, useSearchParams } from "next/navigation";
 
 export const PROPERTY_TYPES = {
   any: "Any type",
@@ -12,11 +12,25 @@ export const PROPERTY_TYPES = {
 
 export type PropertyType = keyof typeof PROPERTY_TYPES;
 
+function isPropertyType(value: string | null): value is PropertyType {
+  return value !== null && value in PROPERTY_TYPES;
+}
+
 function useSearch() {
-  const [type, setType] = useState<PropertyType>("any");
-  const [where, setWhere] = useState("");
-  const [placeId, setPlaceId] = useState("");
-  const [numOfGuests, setNumOfGuests] = useState(1);
+  const searchParams = useSearchParams();
+
+  const [type, setType] = useState<PropertyType>(() => {
+    const t = searchParams.get("type");
+    return isPropertyType(t) ? t : "any";
+  });
+
+  const [where, setWhere] = useState(() => searchParams.get("where") ?? "");
+  const [placeId, setPlaceId] = useState(() => searchParams.get("placeId") ?? "");
+  const [numOfGuests, setNumOfGuests] = useState(() => {
+    const g = Number(searchParams.get("guests"));
+    return g >= 1 ? g : 1;
+  });
+
   const [open, setOpen] = useState(false);
   const [predictions, setPredictions] = useState(
     [] as google.maps.places.AutocompletePrediction[]
@@ -27,6 +41,16 @@ function useSearch() {
   const debounceRef = useRef<NodeJS.Timeout | null>(null);
 
   const router = useRouter();
+
+  // Sync state when URL params change externally (e.g. back/forward navigation)
+  useEffect(() => {
+    const t = searchParams.get("type");
+    setType(isPropertyType(t) ? t : "any");
+    setWhere(searchParams.get("where") ?? "");
+    setPlaceId(searchParams.get("placeId") ?? "");
+    const g = Number(searchParams.get("guests"));
+    setNumOfGuests(g >= 1 ? g : 1);
+  }, [searchParams]);
 
   useEffect(() => {
     if (typeof window !== "undefined" && window.google?.maps?.places) {
@@ -44,7 +68,7 @@ function useSearch() {
   const handleLocationChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const value = e.target.value;
     setWhere(value);
-    setPlaceId(""); // clear stale placeId when user edits the input
+    setPlaceId("");
     setOpen(true);
 
     if (debounceRef.current) clearTimeout(debounceRef.current);
@@ -85,14 +109,15 @@ function useSearch() {
   const incrementGuests = () => setNumOfGuests((n) => n + 1);
   const decrementGuests = () => setNumOfGuests((n) => Math.max(1, n - 1));
 
-  const search = () => {
+  const search = useCallback(() => {
     const params = new URLSearchParams();
+    if (where) params.set("where", where);
     if (placeId) params.set("placeId", placeId);
     if (type !== "any") params.set("type", type);
     if (numOfGuests > 1) params.set("guests", String(numOfGuests));
 
     router.push(`/listings?${params.toString()}`);
-  };
+  }, [where, placeId, type, numOfGuests, router]);
 
   return {
     where,
