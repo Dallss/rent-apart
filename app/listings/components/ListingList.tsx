@@ -2,24 +2,31 @@
 
 import Link from "next/link";
 import { Heart } from "lucide-react";
-import { useState } from "react";
+import { useState, useEffect, useRef } from "react";
 import { useAuth } from "@/providers/AuthProvider";
 
-type Listing = {
+export type Listing = {
   id: string;
   title: string;
   neighborhood: string;
   rent: number;
   bedrooms: number;
   blurb: string;
-  hero_image?: string;
+  image?: string;
   rating: string | null;
+  lat: number;
+  lng: number;
 };
 
 type ListingListProps = {
-  items: Listing[];
+  listings: Listing[];
   activeId?: string | null;
   onSelect?: (id: string) => void;
+  lazyLoading?: {
+    fetchNextPage: () => void;
+    hasNextPage?: boolean;
+    isFetchingNextPage?: boolean;
+  };
 };
 
 function formatRent(n: number) {
@@ -31,36 +38,46 @@ function formatRent(n: number) {
 }
 
 export default function ListingList({
-  items,
+  listings,
   activeId,
   onSelect,
+  lazyLoading,
 }: ListingListProps) {
   const { isSignedIn, setShowAuthModal } = useAuth();
   const [favorites, setFavorites] = useState<Record<string, boolean>>({});
+  const itemRefs = useRef<Record<string, HTMLLIElement | null>>({});
+
+  useEffect(() => {
+    if (!activeId) return;
+    itemRefs.current[activeId]?.scrollIntoView({
+      behavior: "smooth",
+      block: "nearest",
+    });
+  }, [activeId]);
 
   function toggleFavorite(id: string) {
     if (!isSignedIn) {
       setShowAuthModal(true);
       return;
     }
-
-    setFavorites((prev) => ({
-      ...prev,
-      [id]: !prev[id],
-    }));
+    setFavorites((prev) => ({ ...prev, [id]: !prev[id] }));
   }
+
+  const hasMore = lazyLoading?.hasNextPage;
+  const loadingMore = lazyLoading?.isFetchingNextPage;
 
   return (
     <div className="flex-1 min-h-0 overflow-y-auto px-6 py-6">
       <ul className="flex flex-col gap-3 w-full">
-        {items.map((item) => {
+        {listings.map((item) => {
           const isFavorite = favorites[item.id];
 
           return (
             <li
               key={item.id}
+              ref={(el) => { itemRefs.current[item.id] = el; }}
               onClick={() => onSelect?.(item.id)}
-              className={` transition ${
+              className={`transition ${
                 activeId === item.id
                   ? "ring-2 ring-zinc-800"
                   : "hover:ring-1 hover:ring-zinc-200"
@@ -72,7 +89,6 @@ export default function ListingList({
                 onClick={(e) => e.preventDefault()}
               >
                 <article className="flex w-full gap-4 border border-zinc-200 bg-white p-3 transition hover:border-zinc-300 hover:shadow-sm">
-                  
                   {/* Image */}
                   <div className="relative h-28 w-28 shrink-0 overflow-hidden rounded-xl">
                     <button
@@ -93,9 +109,9 @@ export default function ListingList({
                       />
                     </button>
 
-                    {item.hero_image ? (
+                    {item.image ? (
                       <img
-                        src={item.hero_image}
+                        src={item.image}
                         alt={item.title}
                         className="h-full w-full object-cover"
                       />
@@ -113,7 +129,6 @@ export default function ListingList({
                         <h3 className="truncate text-base font-semibold text-zinc-900">
                           {item.title}
                         </h3>
-
                         <p className="mt-1 truncate text-sm text-zinc-500">
                           {item.neighborhood}
                         </p>
@@ -123,9 +138,7 @@ export default function ListingList({
                         <div className="text-base font-semibold text-zinc-900">
                           {formatRent(item.rent)}
                         </div>
-                        <div className="text-xs text-zinc-500">
-                          per month
-                        </div>
+                        <div className="text-xs text-zinc-500">per month</div>
                       </div>
                     </div>
 
@@ -135,13 +148,9 @@ export default function ListingList({
                           ? "Studio"
                           : `${item.bedrooms} Bedroom${item.bedrooms > 1 ? "s" : ""}`}
                       </span>
-
                       <span className="text-zinc-300">•</span>
-
                       <span>
-                        {item.rating == null
-                          ? "No rating yet"
-                          : `⭐ ${item.rating}`}
+                        {item.rating == null ? "No rating yet" : `⭐ ${item.rating}`}
                       </span>
                     </div>
 
@@ -155,6 +164,18 @@ export default function ListingList({
           );
         })}
       </ul>
+
+      {hasMore && (
+        <div className="mt-6 flex justify-center">
+          <button
+            onClick={() => lazyLoading?.fetchNextPage?.()}
+            disabled={loadingMore}
+            className="rounded border px-4 py-2 text-sm hover:bg-zinc-50 disabled:opacity-50"
+          >
+            {loadingMore ? "Loading..." : "Load more"}
+          </button>
+        </div>
+      )}
     </div>
   );
 }

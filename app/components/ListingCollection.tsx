@@ -24,7 +24,7 @@ export default function ListingCollection({
     fetchNextPage,
     hasNextPage,
     isFetchingNextPage,
-  } = useLazyFetchApartments({ api, params: { city: "Cebu City" } });
+  } = useLazyFetchApartments({ api });
 
   const listings = useMemo(() => {
     return (
