@@ -20,6 +20,9 @@ export default function Filterbar() {
     search,
     removeFilter,
     clearAllFilters,
+
+    bedrooms,
+    setBedrooms,
   } = useSearch();
 
   const [modalOpen, setModalOpen] = useState(false);
@@ -46,6 +49,15 @@ export default function Filterbar() {
             id: "place",
             label: place,
             onRemove: () => removeFilter("place"),
+          },
+        ]
+      : []),
+    ...(bedrooms
+      ? [
+          {
+            id: "bedrooms",
+            label: bedrooms === "0" ? "Studio" : `${bedrooms} Bedroom${bedrooms === "1" ? "" : "s"}`,
+            onRemove: () => removeFilter("bedrooms"),
           },
         ]
       : []),
@@ -217,8 +229,64 @@ export default function Filterbar() {
                     )}
                   </AnimatePresence>
                 </div>
-              </div>
+                
+                {/* Bedrooms */}
+                <div>
+                  <label className="flex items-center gap-1.5 text-xs font-semibold mb-2 text-gray-500 uppercase tracking-wide">
+                    Bedrooms
+                  </label>
 
+                  <div className="relative">
+                    <select
+                      value={bedrooms}
+                      onChange={(e) => setBedrooms(e.target.value)}
+                      className="
+                        w-full
+                        appearance-none
+                        bg-[var(--color-border)]/30
+                        rounded-xl
+                        px-3.5
+                        py-2.5
+                        pr-10
+                        text-sm
+                        outline-none
+                        border border-transparent
+                        focus:border-[var(--color-primary)]/30
+                        focus:ring-2
+                        focus:ring-[var(--color-primary)]/20
+                        transition
+                        cursor-pointer
+                      "
+                    >
+                      <option value="">Any bedrooms</option>
+                      <option value="0">Studio</option>
+                      <option value="1">1 Bedroom</option>
+                      <option value="2">2 Bedrooms</option>
+                      <option value="3">3 Bedrooms</option>
+                      <option value="4">4 Bedrooms</option>
+                      <option value="5">5 Bedrooms</option>
+                    </select>
+
+                    {/* Custom Chevron */}
+                    <div className="pointer-events-none absolute inset-y-0 right-3 flex items-center text-gray-400">
+                      <svg
+                        className="w-4 h-4"
+                        viewBox="0 0 20 20"
+                        fill="none"
+                        stroke="currentColor"
+                        strokeWidth="2"
+                      >
+                        <path d="M6 8l4 4 4-4" />
+                      </svg>
+                    </div>
+                  </div>
+
+                  <p className="text-[11px] text-gray-400 mt-2">
+                    Studio is treated as 0 bedrooms.
+                  </p>
+                </div>
+              </div>
+              
               {/* Footer */}
               <div className="px-5 pb-6 pt-4 flex items-center justify-between border-t border-[var(--color-border)]">
                 <button

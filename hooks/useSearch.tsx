@@ -9,7 +9,14 @@ function useSearch() {
 
   const [place, setPlace] = useState(() => searchParams.get("place") ?? "");
   const [placeId, setPlaceId] = useState(() => searchParams.get("city_google_place_id") ?? "");
+  const [bedrooms, setBedrooms] = useState(() => searchParams.get("bedrooms") ?? "");
 
+  // SYNC FROM URL
+  useEffect(() => {
+    setPlace(searchParams.get("place") ?? "");
+    setPlaceId(searchParams.get("city_google_place_id") ?? "");
+    setBedrooms(searchParams.get("bedrooms") ?? "");
+  }, [searchParams]);
 
   const [autocompleteOpen, setAutocompleteOpen] = useState(false);
   const [predictions, setPredictions] =
@@ -19,13 +26,6 @@ function useSearch() {
     useRef<google.maps.places.AutocompleteService | null>(null);
 
   const debounceRef = useRef<NodeJS.Timeout | null>(null);
-
-
-  // SYNC FROM URL
-  useEffect(() => {
-    setPlace(searchParams.get("place") ?? "");
-    setPlaceId(searchParams.get("city_google_place_id") ?? "");
-  }, [searchParams]);
 
   useEffect(() => {
     if (typeof window !== "undefined" && window.google?.maps?.places) {
@@ -39,7 +39,6 @@ function useSearch() {
       if (debounceRef.current) clearTimeout(debounceRef.current);
     };
   }, []);
-
 
   // LOCATION INPUT
   const handlePlaceChange = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -91,30 +90,39 @@ function useSearch() {
   };
 
 
-
   // SEARCH
   const search = useCallback(() => {
     const params = new URLSearchParams();
 
     if (place) params.set("place", place);
     if (placeId) params.set("city_google_place_id", placeId);
+    if (bedrooms) params.set("bedrooms", bedrooms);
 
     router.push(`/listings?${params.toString()}`);
-  }, [place, placeId, router]);
+  }, [place, placeId, router, bedrooms]);
 
-  const removeFilter = (key: "place") => {
+  const removeFilter = (key: "place" | "bedrooms") => {
     const params = new URLSearchParams(searchParams.toString());
-
-    if (key === "place") {
-      setPlace("");
-      setPlaceId("");
-      params.delete("place");
-      params.delete("city_google_place_id");
+  
+    switch (key) {
+      case "place":
+        setPlace("");
+        setPlaceId("");
+        params.delete("place");
+        params.delete("city_google_place_id");
+        break;
+  
+      case "bedrooms":
+        setBedrooms("");
+        params.delete("bedrooms");
+        break;
+  
+      default:
+        break;
     }
-
+  
     router.replace(`/listings?${params.toString()}`, { scroll: false });
   };
-
   const clearAllFilters = () => {
     setPlace("");
     setPlaceId("");
@@ -131,6 +139,9 @@ function useSearch() {
     handlePlaceChange,
     selectPrediction,
     setAutocompleteOpen,
+
+    bedrooms,
+    setBedrooms,
 
     removeFilter,
     clearAllFilters,
