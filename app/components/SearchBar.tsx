@@ -4,17 +4,15 @@ import { Search } from "lucide-react";
 import { useRef } from "react";
 import { usePathname } from "next/navigation";
 import { motion, useScroll, useTransform, AnimatePresence } from "framer-motion";
-import useSearch, { PROPERTY_TYPES } from "@/hooks/useSearch";
+import useSearch from "@/hooks/useSearch";
 
 export default function SearchBar() {
   const {
     where,
-    type,
     open,
     predictions,
     handleLocationChange,
     selectPrediction,
-    setType,
     setOpen,
     search,
   } = useSearch();
@@ -93,25 +91,6 @@ export default function SearchBar() {
               </motion.div>
             )}
           </AnimatePresence>
-        </div>
-
-        <div className="h-8 w-px bg-[var(--color-border)]" />
-
-        {/* TYPE */}
-        <div className="flex-1 px-6">
-          <p className="text-xs font-semibold">Type</p>
-
-          <select
-            value={type}
-            onChange={(e) => setType(e.target.value as keyof typeof PROPERTY_TYPES)}
-            className="w-full bg-transparent outline-none text-sm"
-          >
-            {Object.entries(PROPERTY_TYPES).map(([key, label]) => (
-              <option key={key} value={key}>
-                {label}
-              </option>
-            ))}
-          </select>
         </div>
 
         <div className="h-8 w-px bg-[var(--color-border)]" />

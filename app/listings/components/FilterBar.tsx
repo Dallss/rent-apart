@@ -1,24 +1,32 @@
 "use client";
 
-import { SlidersHorizontal, X, MapPin, Home, Users, Minus, Plus } from "lucide-react";
+import {
+  SlidersHorizontal,
+  X,
+  MapPin,
+  Home,
+  Users,
+  Minus,
+  Plus,
+} from "lucide-react";
 import { useRef, useState } from "react";
 import { motion, AnimatePresence } from "framer-motion";
-import useSearch, { PROPERTY_TYPES } from "@/hooks/useSearch";
+import useSearch from "@/hooks/useSearch";
 
 export default function Filterbar() {
   const {
     where,
-    type,
     numOfGuests,
     open: autocompleteOpen,
     predictions,
     handleLocationChange,
     selectPrediction,
-    setType,
     setOpen: setAutocompleteOpen,
     incrementGuests,
     decrementGuests,
     search,
+    removeFilter,
+    clearAllFilters,
   } = useSearch();
 
   const [modalOpen, setModalOpen] = useState(false);
@@ -30,43 +38,42 @@ export default function Filterbar() {
   }
 
   function handleClear() {
-    handleLocationChange({ target: { value: "" } } as React.ChangeEvent<HTMLInputElement>);
-    setType("any");
-    for (let i = numOfGuests; i > 1; i--) decrementGuests();
+    clearAllFilters();
   }
 
-  // Active filter chips to display
-  const activeFilters: { id: string; label: string; onRemove: () => void }[] = [
+  // Active filter chips
+  const activeFilters: {
+    id: string;
+    label: string;
+    onRemove: () => void;
+  }[] = [
     ...(where.trim()
-      ? [{
-          id: "where",
-          label: where,
-          onRemove: () =>
-            handleLocationChange({ target: { value: "" } } as React.ChangeEvent<HTMLInputElement>),
-        }]
+      ? [
+          {
+            id: "where",
+            label: where,
+            onRemove: () => removeFilter("where"),
+          },
+        ]
       : []),
-    ...(type !== "any"
-      ? [{
-          id: "type",
-          label: PROPERTY_TYPES[type],
-          onRemove: () => setType("any"),
-        }]
-      : []),
+
     ...(numOfGuests > 1
-      ? [{
-          id: "guests",
-          label: `${numOfGuests} guests`,
-          onRemove: () => { for (let i = numOfGuests; i > 1; i--) decrementGuests(); },
-        }]
+      ? [
+          {
+            id: "guests",
+            label: `${numOfGuests} guests`,
+            onRemove: () => removeFilter("guests"),
+          },
+        ]
       : []),
   ];
 
   return (
     <>
-      {/* Bar: fixed pill + scrollable chips row */}
+      {/* Filter bar */}
       <div className="w-full bg-white flex items-center gap-0 py-3 px-5 overflow-hidden border-b border-gray-200">
 
-        {/* Filter button — never scrolls */}
+        {/* Filter button */}
         <div className="flex-shrink-0 flex items-center">
           <button
             onClick={() => setModalOpen(true)}
@@ -74,6 +81,7 @@ export default function Filterbar() {
           >
             <SlidersHorizontal size={14} strokeWidth={2} />
             Filters
+
             {activeFilters.length > 0 && (
               <span className="absolute -top-1.5 -right-1.5 w-4 h-4 rounded-full bg-[var(--color-primary)] text-white text-[10px] font-bold flex items-center justify-center">
                 {activeFilters.length}
@@ -81,13 +89,12 @@ export default function Filterbar() {
             )}
           </button>
 
-          {/* Separator — only shown when there are active filters */}
           {activeFilters.length > 0 && (
             <div className="ml-3 h-5 w-px bg-gray-200 flex-shrink-0" />
           )}
         </div>
 
-        {/* Scrollable chips */}
+        {/* Chips */}
         {activeFilters.length > 0 && (
           <div className="flex items-center gap-2 overflow-x-auto pl-3 scrollbar-none flex-1">
             <AnimatePresence initial={false}>
@@ -100,7 +107,10 @@ export default function Filterbar() {
                   transition={{ duration: 0.15 }}
                   className="flex-shrink-0 flex items-center gap-1.5 pl-3 pr-2 py-1 rounded-full border border-gray-300 bg-gray-50 text-xs font-medium"
                 >
-                  <span className="whitespace-nowrap max-w-[120px] truncate">{f.label}</span>
+                  <span className="whitespace-nowrap max-w-[120px] truncate">
+                    {f.label}
+                  </span>
+
                   <button
                     onClick={f.onRemove}
                     className="w-3.5 h-3.5 rounded-full flex items-center justify-center text-gray-400 hover:text-gray-700 transition-colors flex-shrink-0"
@@ -118,6 +128,7 @@ export default function Filterbar() {
       <AnimatePresence>
         {modalOpen && (
           <>
+            {/* Backdrop */}
             <motion.div
               key="backdrop"
               initial={{ opacity: 0 }}
@@ -128,6 +139,7 @@ export default function Filterbar() {
               onClick={() => setModalOpen(false)}
             />
 
+            {/* Modal */}
             <motion.div
               key="modal"
               initial={{ opacity: 0, y: 20 }}
@@ -139,6 +151,7 @@ export default function Filterbar() {
               {/* Header */}
               <div className="flex items-center justify-between px-5 pt-5 pb-4 border-b border-[var(--color-border)]">
                 <span className="text-sm font-semibold">Filters</span>
+
                 <button
                   onClick={() => setModalOpen(false)}
                   className="w-7 h-7 rounded-full flex items-center justify-center hover:bg-[var(--color-border)]/60 transition-colors"
@@ -147,7 +160,7 @@ export default function Filterbar() {
                 </button>
               </div>
 
-              {/* Fields */}
+              {/* Body */}
               <div className="px-5 py-5 flex flex-col gap-6">
 
                 {/* Location */}
@@ -156,6 +169,7 @@ export default function Filterbar() {
                     <MapPin size={11} />
                     Location
                   </label>
+
                   <input
                     ref={inputRef}
                     className="w-full bg-[var(--color-border)]/30 rounded-xl px-3.5 py-2.5 text-sm outline-none focus:ring-2 focus:ring-[var(--color-primary)]/30 transition"
@@ -164,8 +178,12 @@ export default function Filterbar() {
                     autoComplete="off"
                     onChange={handleLocationChange}
                     onFocus={() => setAutocompleteOpen(true)}
-                    onBlur={() => setTimeout(() => setAutocompleteOpen(false), 150)}
-                    onKeyDown={(e) => e.key === "Escape" && setAutocompleteOpen(false)}
+                    onBlur={() =>
+                      setTimeout(() => setAutocompleteOpen(false), 150)
+                    }
+                    onKeyDown={(e) =>
+                      e.key === "Escape" && setAutocompleteOpen(false)
+                    }
                   />
 
                   <AnimatePresence>
@@ -180,10 +198,15 @@ export default function Filterbar() {
                         <p className="text-[10px] font-semibold uppercase tracking-widest text-gray-400 px-4 pt-3 pb-1">
                           Suggestions
                         </p>
+
                         {where.trim() === "" ? (
-                          <p className="text-sm text-gray-400 px-4 py-3">Start typing a location…</p>
+                          <p className="text-sm text-gray-400 px-4 py-3">
+                            Start typing a location…
+                          </p>
                         ) : predictions.length === 0 ? (
-                          <p className="text-sm text-gray-400 px-4 py-3">No locations found</p>
+                          <p className="text-sm text-gray-400 px-4 py-3">
+                            No locations found
+                          </p>
                         ) : (
                           predictions.map((prediction) => (
                             <div
@@ -194,6 +217,7 @@ export default function Filterbar() {
                               <div className="w-7 h-7 rounded-lg bg-gray-100 flex items-center justify-center shrink-0 text-xs">
                                 📍
                               </div>
+
                               <div className="flex flex-col min-w-0">
                                 <span className="text-sm font-medium truncate">
                                   {prediction.structured_formatting.main_text}
@@ -210,35 +234,13 @@ export default function Filterbar() {
                   </AnimatePresence>
                 </div>
 
-                {/* Property type */}
-                <div>
-                  <label className="flex items-center gap-1.5 text-xs font-semibold mb-2 text-gray-500 uppercase tracking-wide">
-                    <Home size={11} />
-                    Property type
-                  </label>
-                  <div className="flex flex-wrap gap-2">
-                    {Object.entries(PROPERTY_TYPES).map(([key, label]) => (
-                      <button
-                        key={key}
-                        onClick={() => setType(key as keyof typeof PROPERTY_TYPES)}
-                        className={`px-3.5 py-1.5 rounded-full text-sm border transition-colors ${
-                          type === key
-                            ? "bg-[var(--color-primary)] text-white border-[var(--color-primary)]"
-                            : "border-[var(--color-border)] hover:border-gray-400"
-                        }`}
-                      >
-                        {label}
-                      </button>
-                    ))}
-                  </div>
-                </div>
-
                 {/* Guests */}
                 <div>
                   <label className="flex items-center gap-1.5 text-xs font-semibold mb-2 text-gray-500 uppercase tracking-wide">
                     <Users size={11} />
                     Guests
                   </label>
+
                   <div className="flex items-center gap-4">
                     <button
                       onClick={decrementGuests}
@@ -247,15 +249,18 @@ export default function Filterbar() {
                     >
                       <Minus size={13} />
                     </button>
+
                     <span className="text-sm font-medium w-4 text-center tabular-nums">
                       {numOfGuests}
                     </span>
+
                     <button
                       onClick={incrementGuests}
                       className="w-8 h-8 rounded-full border border-[var(--color-border)] flex items-center justify-center hover:border-gray-400 transition-colors"
                     >
                       <Plus size={13} />
                     </button>
+
                     <span className="text-sm text-gray-400">
                       {numOfGuests === 1 ? "guest" : "guests"}
                     </span>
@@ -271,6 +276,7 @@ export default function Filterbar() {
                 >
                   Clear all
                 </button>
+
                 <button
                   onClick={handleSearch}
                   className="px-6 py-2.5 rounded-xl bg-[var(--color-primary)] text-white text-sm font-semibold hover:opacity-90 active:scale-95 transition"
