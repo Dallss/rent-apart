@@ -4,10 +4,6 @@ import {
   SlidersHorizontal,
   X,
   MapPin,
-  Home,
-  Users,
-  Minus,
-  Plus,
 } from "lucide-react";
 import { useRef, useState } from "react";
 import { motion, AnimatePresence } from "framer-motion";
@@ -15,15 +11,12 @@ import useSearch from "@/hooks/useSearch";
 
 export default function Filterbar() {
   const {
-    where,
-    numOfGuests,
-    open: autocompleteOpen,
+    place,
+    autocompleteOpen,
     predictions,
-    handleLocationChange,
+    handlePlaceChange,
     selectPrediction,
-    setOpen: setAutocompleteOpen,
-    incrementGuests,
-    decrementGuests,
+    setAutocompleteOpen,
     search,
     removeFilter,
     clearAllFilters,
@@ -47,25 +40,16 @@ export default function Filterbar() {
     label: string;
     onRemove: () => void;
   }[] = [
-    ...(where.trim()
+    ...(place.trim()
       ? [
           {
-            id: "where",
-            label: where,
-            onRemove: () => removeFilter("where"),
+            id: "place",
+            label: place,
+            onRemove: () => removeFilter("place"),
           },
         ]
       : []),
 
-    ...(numOfGuests > 1
-      ? [
-          {
-            id: "guests",
-            label: `${numOfGuests} guests`,
-            onRemove: () => removeFilter("guests"),
-          },
-        ]
-      : []),
   ];
 
   return (
@@ -174,9 +158,9 @@ export default function Filterbar() {
                     ref={inputRef}
                     className="w-full bg-[var(--color-border)]/30 rounded-xl px-3.5 py-2.5 text-sm outline-none focus:ring-2 focus:ring-[var(--color-primary)]/30 transition"
                     placeholder="Search destinations"
-                    value={where}
+                    value={place}
                     autoComplete="off"
-                    onChange={handleLocationChange}
+                    onChange={handlePlaceChange}
                     onFocus={() => setAutocompleteOpen(true)}
                     onBlur={() =>
                       setTimeout(() => setAutocompleteOpen(false), 150)
@@ -199,7 +183,7 @@ export default function Filterbar() {
                           Suggestions
                         </p>
 
-                        {where.trim() === "" ? (
+                        {place.trim() === "" ? (
                           <p className="text-sm text-gray-400 px-4 py-3">
                             Start typing a location…
                           </p>
@@ -232,39 +216,6 @@ export default function Filterbar() {
                       </motion.div>
                     )}
                   </AnimatePresence>
-                </div>
-
-                {/* Guests */}
-                <div>
-                  <label className="flex items-center gap-1.5 text-xs font-semibold mb-2 text-gray-500 uppercase tracking-wide">
-                    <Users size={11} />
-                    Guests
-                  </label>
-
-                  <div className="flex items-center gap-4">
-                    <button
-                      onClick={decrementGuests}
-                      disabled={numOfGuests <= 1}
-                      className="w-8 h-8 rounded-full border border-[var(--color-border)] flex items-center justify-center hover:border-gray-400 transition-colors disabled:opacity-30 disabled:cursor-not-allowed"
-                    >
-                      <Minus size={13} />
-                    </button>
-
-                    <span className="text-sm font-medium w-4 text-center tabular-nums">
-                      {numOfGuests}
-                    </span>
-
-                    <button
-                      onClick={incrementGuests}
-                      className="w-8 h-8 rounded-full border border-[var(--color-border)] flex items-center justify-center hover:border-gray-400 transition-colors"
-                    >
-                      <Plus size={13} />
-                    </button>
-
-                    <span className="text-sm text-gray-400">
-                      {numOfGuests === 1 ? "guest" : "guests"}
-                    </span>
-                  </div>
                 </div>
               </div>
 

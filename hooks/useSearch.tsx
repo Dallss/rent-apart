@@ -1,3 +1,5 @@
+// This is the logic for searchbars/filter-uis across the webpage.
+
 import { useRef, useEffect, useState, useCallback } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
 
@@ -5,15 +7,11 @@ function useSearch() {
   const searchParams = useSearchParams();
   const router = useRouter();
 
-  const [where, setWhere] = useState(() => searchParams.get("where") ?? "");
+  const [place, setPlace] = useState(() => searchParams.get("place") ?? "");
   const [placeId, setPlaceId] = useState(() => searchParams.get("city_google_place_id") ?? "");
 
-  const [numOfGuests, setNumOfGuests] = useState(() => {
-    const g = Number(searchParams.get("guests"));
-    return g >= 1 ? g : 1;
-  });
 
-  const [open, setOpen] = useState(false);
+  const [autocompleteOpen, setAutocompleteOpen] = useState(false);
   const [predictions, setPredictions] =
     useState<google.maps.places.AutocompletePrediction[]>([]);
 
@@ -22,20 +20,13 @@ function useSearch() {
 
   const debounceRef = useRef<NodeJS.Timeout | null>(null);
 
-  // -----------------------------
-  // SYNC FROM URL
-  // -----------------------------
-  useEffect(() => {
-    setWhere(searchParams.get("where") ?? "");
-    setPlaceId(searchParams.get("city_google_place_id") ?? "");
 
-    const g = Number(searchParams.get("guests"));
-    setNumOfGuests(g >= 1 ? g : 1);
+  // SYNC FROM URL
+  useEffect(() => {
+    setPlace(searchParams.get("place") ?? "");
+    setPlaceId(searchParams.get("city_google_place_id") ?? "");
   }, [searchParams]);
 
-  // -----------------------------
-  // GOOGLE AUTOCOMPLETE INIT
-  // -----------------------------
   useEffect(() => {
     if (typeof window !== "undefined" && window.google?.maps?.places) {
       autocompleteService.current =
@@ -49,15 +40,14 @@ function useSearch() {
     };
   }, []);
 
-  // -----------------------------
+
   // LOCATION INPUT
-  // -----------------------------
-  const handleLocationChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+  const handlePlaceChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const value = e.target.value;
 
-    setWhere(value);
+    setPlace(value);
     setPlaceId("");
-    setOpen(true);
+    setAutocompleteOpen(true);
 
     if (debounceRef.current) clearTimeout(debounceRef.current);
 
@@ -94,81 +84,57 @@ function useSearch() {
   const selectPrediction = (
     prediction: google.maps.places.AutocompletePrediction
   ) => {
-    setWhere(prediction.description);
+    setPlace(prediction.description);
     setPlaceId(prediction.place_id);
     setPredictions([]);
-    setOpen(false);
+    setAutocompleteOpen(false);
   };
 
-  // -----------------------------
-  // GUESTS
-  // -----------------------------
-  const incrementGuests = () => setNumOfGuests((n) => n + 1);
-  const decrementGuests = () => setNumOfGuests((n) => Math.max(1, n - 1));
 
-  // -----------------------------
+
   // SEARCH
-  // -----------------------------
   const search = useCallback(() => {
     const params = new URLSearchParams();
 
-    if (where) params.set("where", where);
+    if (place) params.set("place", place);
     if (placeId) params.set("city_google_place_id", placeId);
-    if (numOfGuests > 1) params.set("guests", String(numOfGuests));
 
     router.push(`/listings?${params.toString()}`);
-  }, [where, placeId, numOfGuests, router]);
+  }, [place, placeId, router]);
 
-  // -----------------------------
-  // 🔥 REMOVE SINGLE FILTER (NEW)
-  // -----------------------------
-  const removeFilter = (key: "where" | "guests") => {
+  const removeFilter = (key: "place") => {
     const params = new URLSearchParams(searchParams.toString());
 
-    if (key === "where") {
-      setWhere("");
+    if (key === "place") {
+      setPlace("");
       setPlaceId("");
-      params.delete("where");
+      params.delete("place");
       params.delete("city_google_place_id");
-    }
-
-    if (key === "guests") {
-      setNumOfGuests(1);
-      params.delete("guests");
     }
 
     router.replace(`/listings?${params.toString()}`, { scroll: false });
   };
 
-  // -----------------------------
-  // 🔥 CLEAR ALL FILTERS (NEW)
-  // -----------------------------
   const clearAllFilters = () => {
-    setWhere("");
+    setPlace("");
     setPlaceId("");
-    setNumOfGuests(1);
 
     router.replace("/listings", { scroll: false });
   };
 
   return {
-    where,
-    numOfGuests,
-    open,
+    place,
+    autocompleteOpen,
     predictions,
     placeId,
 
-    handleLocationChange,
+    handlePlaceChange,
     selectPrediction,
-
-    incrementGuests,
-    decrementGuests,
-    setOpen,
-
-    search,
+    setAutocompleteOpen,
 
     removeFilter,
     clearAllFilters,
+    search,
   };
 }
 

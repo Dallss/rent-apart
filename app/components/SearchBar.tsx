@@ -2,23 +2,21 @@
 
 import { Search } from "lucide-react";
 import { useRef } from "react";
-import { usePathname } from "next/navigation";
 import { motion, useScroll, useTransform, AnimatePresence } from "framer-motion";
 import useSearch from "@/hooks/useSearch";
 
 export default function SearchBar() {
   const {
-    where,
-    open,
+    place,
+    autocompleteOpen,
     predictions,
-    handleLocationChange,
+    handlePlaceChange,
     selectPrediction,
-    setOpen,
+    setAutocompleteOpen,
     search,
   } = useSearch();
 
   const inputRef = useRef<HTMLInputElement>(null);
-  const pathname = usePathname();
   const { scrollY } = useScroll();
   const scale = useTransform(scrollY, [0, 200], [1, 0.9]);
 
@@ -28,7 +26,7 @@ export default function SearchBar() {
         style={{ scale }}
         className="flex items-center w-full max-w-3xl origin-center bg-[var(--color-surface)] rounded-full shadow-sm border border-[var(--color-border)] overflow-visible"
       >
-        {/* WHERE */}
+        {/* Place */}
         <div className="flex-1 px-5 py-2 relative">
           <p className="text-xs font-semibold">Where</p>
 
@@ -36,18 +34,18 @@ export default function SearchBar() {
             ref={inputRef}
             className="w-full bg-transparent outline-none text-sm"
             placeholder="Search destinations"
-            value={where}
+            value={place}
             autoComplete="off"
-            onChange={handleLocationChange}
-            onFocus={() => setOpen(true)}
-            onBlur={() => setTimeout(() => setOpen(false), 150)}
+            onChange={handlePlaceChange}
+            onFocus={() => setAutocompleteOpen(true)}
+            onBlur={() => setTimeout(() => setAutocompleteOpen(false), 150)}
             onKeyDown={(e) => {
-              if (e.key === "Escape") setOpen(false);
+              if (e.key === "Escape") setAutocompleteOpen(false);
             }}
           />
 
           <AnimatePresence>
-            {open && (
+            {autocompleteOpen && (
               <motion.div
                 initial={{ opacity: 0, y: 6 }}
                 animate={{ opacity: 1, y: 0 }}
@@ -59,7 +57,7 @@ export default function SearchBar() {
                   Suggested Locations
                 </p>
 
-                {where.trim() === "" ? (
+                {place.trim() === "" ? (
                   <p className="text-sm text-gray-400 px-4 py-3">
                     Start typing a location...
                   </p>
@@ -96,22 +94,12 @@ export default function SearchBar() {
         <div className="h-8 w-px bg-[var(--color-border)]" />
 
         {/* WHO */}
-        <div className="flex items-center flex-1">
-          <div className="flex-1 px-6">
-            <p className="text-xs font-semibold">Who</p>
-            <input
-              className="w-full bg-transparent outline-none text-sm"
-              placeholder="Add guests"
-            />
-          </div>
-
           <button
             onClick={search}
             className="mr-2 h-12 w-12 rounded-full bg-[var(--color-primary)] flex items-center justify-center text-white"
           >
             <Search size={18} />
           </button>
-        </div>
       </motion.div>
     </div>
   );
