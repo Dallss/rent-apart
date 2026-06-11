@@ -131,7 +131,7 @@ export default function Filterbar() {
   return (
     <>
       {/* Filter bar */}
-      <div className="w-full bg-white flex items-center gap-0 py-3 px-5 overflow-hidden border-b border-gray-200">
+      <div className="w-full bg-white border border-[#E5E7EB] flex items-center gap-0 py-3 px-5 overflow-hidden border-b border-gray-200">
 
         {/* Filter button */}
         <div className="flex-shrink-0 flex items-center">
