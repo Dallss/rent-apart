@@ -126,7 +126,7 @@ export function NavBar() {
   return (
     <div className={`sticky top-0 z-20 flex items-center justify-between px-20 py-4 transition-all duration-300 ${
       pathname === "/"
-        ? isScrolled ? "bg-[#ff7a2f] backdrop-blur-md border border-[#ff7a2f] text-white" : "bg-transparent"
+        ? isScrolled ? "bg-black/40 backdrop-blur-md" : "bg-transparent"
         : "bg-[#F1F5F9] border-b border-[#E5E7EB] text-black"
     }`}>
         {/* LEFT */}
@@ -135,7 +135,8 @@ export function NavBar() {
             href="/"
             className="text-base flex items-center gap-2 font-semibold tracking-tight text-[var(--color-foreground)]"
           >
-            <Image src="/logo.png" alt="Rent Apart" width={45} height={45} /> <span className="text-2xl">Rent Apart</span>
+            <Image src="/logo.png" alt="Rent Apart" width={45} height={45} /> 
+            <span className={`text-2xl ${ pathname === "/" ? "text-white" : "text-black" }`}>Rent Apart</span>
           </Link>
 
           {/* <AuthStatusPill
