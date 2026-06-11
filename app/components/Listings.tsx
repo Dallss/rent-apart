@@ -1,5 +1,5 @@
 "use client";
-import ListingCollection from "./ListingCollection";
+import ListingCollection from "@/app/components/ListingCollection";
 import useRuntimeConfig from "@/hooks/useRuntimeConfig";
 import Image from "next/image";
 
