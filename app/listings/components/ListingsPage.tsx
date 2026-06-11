@@ -1,31 +1,36 @@
 "use client";
-import { useEffect, useMemo, useRef, useState } from "react";
+import {  useMemo, useState } from "react";
 import ListingList from "./ListingList";
 import Filterbar from "./FilterBar";
 import useRuntimeConfig from "@/hooks/useRuntimeConfig";
 import { useSearchParams } from "next/navigation";
-import { ListingMapHandle } from "./ListingMap";
-import { useInfiniteQuery, type InfiniteData } from "@tanstack/react-query";
-
+import { useInfiniteQuery } from "@tanstack/react-query";
 import dynamicImport from "next/dynamic";
 
-const ListingMap = dynamicImport(
-  () => import("./ListingMap"),
-  { ssr: false }
-);
+const ListingMap = dynamicImport(() => import("./ListingMap"), {
+  ssr: false,
+});
 
+// ── Skeleton ─────────────────────────────────────────────
+function ListingSkeleton() {
+  return (
+    <div className="p-4 space-y-3">
+      {Array.from({ length: 8 }).map((_, i) => (
+        <div
+          key={i}
+          className="h-24 w-full rounded-lg bg-zinc-100 animate-pulse"
+        />
+      ))}
+    </div>
+  );
+}
 
 // ── PAGE ──────────────────────────────────────────────────
 export default function Page() {
   const { config } = useRuntimeConfig();
   const [activeId, setActiveId] = useState<string | null>(null);
-  const mapRef = useRef<ListingMapHandle>(null);
-
   const searchParams = useSearchParams();
 
-  const placeId = searchParams.get("city_google_place_id");
-
-  
   const url = useMemo(() => {
     if (!config?.apiUrl) return null;
     return `${config.apiUrl}/api/listings/?${searchParams.toString()}`;
@@ -39,6 +44,7 @@ export default function Page() {
     fetchNextPage,
     hasNextPage,
     isFetchingNextPage,
+    refetch,
   } = useInfiniteQuery({
     queryKey: ["listings", url],
     enabled: !!url,
@@ -51,82 +57,90 @@ export default function Page() {
     getNextPageParam: (lastPage) => lastPage.next ?? undefined,
   });
 
-  const lazyLoading = {
-    fetchNextPage,
-    hasNextPage,
-    isFetchingNextPage,
-  };
-
   const listings = useMemo(() => {
     const results = data?.pages.flatMap((p) => p.results) ?? [];
 
-    return results.map((item: any) => {
-      const lat = Number(item.lat ?? item.latitude);
-      const lng = Number(item.lng ?? item.longitude);
-
-      return {
-        id: String(item.id),
-        title: item.title,
-        neighborhood: item.city,
-        rent: Number(item.monthly_rent),
-        bedrooms: Number(item.bedrooms),
-        blurb: item.description ?? "",
-        image: item.hero_image,
-        rating: item.rating == null ? null : String(item.rating),
-        lat,
-        lng,
-      };
-    });
+    return results.map((item: any) => ({
+      id: String(item.id),
+      title: item.title,
+      neighborhood: item.city,
+      rent: Number(item.monthly_rent),
+      bedrooms: Number(item.bedrooms),
+      blurb: item.description ?? "",
+      image: item.hero_image,
+      rating: item.rating == null ? null : String(item.rating),
+      lat: Number(item.lat ?? item.latitude),
+      lng: Number(item.lng ?? item.longitude),
+    }));
   }, [data]);
 
   const toggle = (id: string) => {
     setActiveId((prev) => (prev === id ? null : id));
   };
 
-  useEffect(() => {
-    if (!placeId || !mapRef.current ) return;
-  
-    const service = new google.maps.places.PlacesService(document.createElement("div"));
-    service.getDetails({ placeId, fields: ["geometry"] }, (result, status) => {
-      if (status !== google.maps.places.PlacesServiceStatus.OK || !result?.geometry?.location) return;
-      mapRef.current?.flyTo({
-        lat: result.geometry.location.lat(),
-        lng: result.geometry.location.lng(),
-        zoom: 13,
-      });
-    });
+  const lazyLoading = {
+    fetchNextPage,
+    hasNextPage,
+    isFetchingNextPage,
+  };
 
-  }, [placeId]);
-
-  if (isLoading) {
-    return <div className="p-6 text-sm text-zinc-500">Loading listings...</div>;
-  }
-
-  if (isError) {
-    return (
-      <div className="p-6 text-sm text-red-500">
-        {error?.message ?? "Something went wrong"}
-      </div>
-    );
-  }
+  const isEmpty = !isLoading && !isError && listings.length === 0;
 
   return (
     <div className="flex h-[calc(100vh-64px)] overflow-hidden">
       {/* LISTINGS */}
-      <div className="flex flex-col w-[45%] overflow-y-auto">
+      <div className="flex flex-col w-[45%] overflow-hidden shadow-sm">
         <Filterbar />
-        <ListingList
-          listings={listings}
-          activeId={activeId}
-          onSelect={toggle}
-          lazyLoading={lazyLoading}
-        />
+
+        <div className="flex-1 overflow-y-auto">
+          {/* LOADING */}
+          {isLoading && <ListingSkeleton />}
+
+          {/* ERROR */}
+          {!isLoading && isError && (
+            <div className="p-6 text-sm text-red-500 space-y-3">
+              <p>{error?.message ?? "Failed to load listings"}</p>
+              <button
+                onClick={() => refetch()}
+                className="text-xs px-3 py-1 rounded bg-red-50 hover:bg-red-100"
+              >
+                Retry
+              </button>
+            </div>
+          )}
+
+          {/* EMPTY */}
+          {isEmpty && (
+            <div className="flex flex-col items-center justify-center h-full text-zinc-500 text-sm px-6 text-center">
+              <p className="font-medium">No listings found</p>
+              <p className="text-xs mt-1">
+                Try adjusting filters or changing your search
+              </p>
+            </div>
+          )}
+
+          {/* SUCCESS */}
+          {!isLoading && !isError && listings.length > 0 && (
+            <ListingList
+              listings={listings}
+              activeId={activeId}
+              onSelect={toggle}
+              lazyLoading={lazyLoading}
+            />
+          )}
+
+          {/* INFINITE LOAD INDICATOR */}
+          {isFetchingNextPage && (
+            <div className="p-3 text-xs text-zinc-400 animate-pulse">
+              Loading more...
+            </div>
+          )}
+        </div>
       </div>
-    
-      {/* MAP */}
+
+      {/* MAP (unchanged / external responsibility) */}
       <div className="flex-1 relative">
         <ListingMap
-          ref={mapRef}
           listings={listings}
           activeId={activeId}
           onSelect={toggle}

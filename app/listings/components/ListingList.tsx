@@ -67,7 +67,7 @@ export default function ListingList({
   const loadingMore = lazyLoading?.isFetchingNextPage;
 
   return (
-    <div className="flex-1 min-h-0 overflow-y-auto px-6 py-6">
+    <div className="flex-1 min-h-0 overflow-y-auto px-6 py-6 bg-zinc-50 ">
       <ul className="flex flex-col gap-3 w-full">
         {listings.map((item) => {
           const isFavorite = favorites[item.id];
@@ -84,7 +84,7 @@ export default function ListingList({
               }`}
             >
              <div className="block">
-                <article className="flex w-full gap-4 border border-zinc-200 bg-white transition hover:border-zinc-300 hover:shadow-sm">
+                <article className="flex w-full gap-4 hover:border-zinc-300 hover:shadow-sm bg-white border border-[#E5E7EB] rounded-lg hover:bg-[#F9FAFB] transition">
                   {/* Image */}
                   <div className="relative h-28 w-28 shrink-0 overflow-hidden rounded-xl m-3 mr-0">
                     <button
@@ -139,7 +139,7 @@ export default function ListingList({
                   {/* Link */}
                   <Link
                     href={`/listings/${item.id}`}
-                    className={`flex flex-col items-center justify-center gap-1 bg-orange-400 text-white transition-all duration-300 overflow-hidden ${
+                    className={`flex flex-col items-center justify-center gap-1 bg-[#ff9a5c] text-white transition-all duration-300 overflow-hidden ${
                       activeId === item.id
                         ? "w-16 px-5 opacity-100"
                         : "w-0 px-0 opacity-0 group-hover:w-16 group-hover:px-5 group-hover:opacity-100"
