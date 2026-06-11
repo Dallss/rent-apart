@@ -64,7 +64,7 @@ export default function Filterbar() {
   return (
     <>
       {/* Bar: fixed pill + scrollable chips row */}
-      <div className="w-full bg-white flex items-center gap-0 py-3 px-5 overflow-hidden">
+      <div className="w-full bg-white flex items-center gap-0 py-3 px-5 overflow-hidden border-b border-gray-200">
 
         {/* Filter button — never scrolls */}
         <div className="flex-shrink-0 flex items-center">

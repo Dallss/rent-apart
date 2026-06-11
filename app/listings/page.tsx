@@ -24,7 +24,9 @@ export default function Page() {
 
 
   const searchParams = useSearchParams();
+
   const placeId = searchParams.get("placeId");
+
 
   useEffect(() => {
     if (!placeId || !mapRef.current) return;
@@ -32,7 +34,6 @@ export default function Page() {
     const service = new google.maps.places.PlacesService(document.createElement("div"));
     service.getDetails({ placeId, fields: ["geometry"] }, (result, status) => {
       if (status !== google.maps.places.PlacesServiceStatus.OK || !result?.geometry?.location) return;
-  
       mapRef.current?.flyTo({
         lat: result.geometry.location.lat(),
         lng: result.geometry.location.lng(),
@@ -40,10 +41,6 @@ export default function Page() {
       });
     });
   }, [placeId]);
-
-  useEffect(() => {
-    setActiveId(null);
-  }, [searchParams]);
 
   const {
     data,
@@ -63,7 +60,6 @@ export default function Page() {
     isFetchingNextPage,
   };
 
-  // ── FIXED FLATTEN + COORDINATES ─────────────────
   const listings = useMemo(() => {
     const results = data?.pages.flatMap((p) => p.results) ?? [];
 
@@ -114,7 +110,7 @@ export default function Page() {
           lazyLoading={lazyLoading}
         />
       </div>
-  
+    
       {/* MAP */}
       <div className="flex-1 relative">
         <ListingMap

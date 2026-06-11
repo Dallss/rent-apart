@@ -62,6 +62,10 @@ function useLazyFetch({ api, params }: FetchParams) {
    
    const url = buildListingsUrl(api, params);
 
+   const refetch = ()=>{
+      
+   }
+
    const {
       data,
       isLoading,
