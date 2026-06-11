@@ -8,14 +8,36 @@ function useSearch() {
   const router = useRouter();
 
   const [place, setPlace] = useState(() => searchParams.get("place") ?? "");
-  const [placeId, setPlaceId] = useState(() => searchParams.get("city_google_place_id") ?? "");
-  const [bedrooms, setBedrooms] = useState(() => searchParams.get("bedrooms") ?? "");
+  const [placeId, setPlaceId] = useState(
+    () => searchParams.get("city_google_place_id") ?? ""
+  );
+  const [bedrooms, setBedrooms] = useState(
+    () => searchParams.get("bedrooms") ?? ""
+  );
+
+  const [minPrice, setMinPrice] = useState(
+    () => searchParams.get("min_rent") ?? ""
+  );
+  const [maxPrice, setMaxPrice] = useState(
+    () => searchParams.get("max_rent") ?? ""
+  );
+  const [listingType, setListingType] = useState(
+    () => searchParams.get("listing_type") ?? ""
+  );
+  const [furnished, setFurnished] = useState(
+    () => searchParams.get("furnished") ?? ""
+  );
 
   // SYNC FROM URL
   useEffect(() => {
     setPlace(searchParams.get("place") ?? "");
     setPlaceId(searchParams.get("city_google_place_id") ?? "");
     setBedrooms(searchParams.get("bedrooms") ?? "");
+
+    setMinPrice(searchParams.get("min_rent") ?? "");
+    setMaxPrice(searchParams.get("max_rent") ?? "");
+    setListingType(searchParams.get("listing_type") ?? "");
+    setFurnished(searchParams.get("furnished") ?? "");
   }, [searchParams]);
 
   const [autocompleteOpen, setAutocompleteOpen] = useState(false);
@@ -89,7 +111,6 @@ function useSearch() {
     setAutocompleteOpen(false);
   };
 
-
   // SEARCH
   const search = useCallback(() => {
     const params = new URLSearchParams();
@@ -98,12 +119,34 @@ function useSearch() {
     if (placeId) params.set("city_google_place_id", placeId);
     if (bedrooms) params.set("bedrooms", bedrooms);
 
-    router.push(`/listings?${params.toString()}`);
-  }, [place, placeId, router, bedrooms]);
+    if (minPrice) params.set("min_rent", minPrice);
+    if (maxPrice) params.set("max_rent", maxPrice);
+    if (listingType) params.set("listing_type", listingType);
+    if (furnished) params.set("furnished", furnished);
 
-  const removeFilter = (key: "place" | "bedrooms") => {
+    router.push(`/listings?${params.toString()}`);
+  }, [
+    place,
+    placeId,
+    bedrooms,
+    minPrice,
+    maxPrice,
+    listingType,
+    furnished,
+    router,
+  ]);
+
+  const removeFilter = (
+    key:
+      | "place"
+      | "bedrooms"
+      | "minPrice"
+      | "maxPrice"
+      | "listingType"
+      | "furnished"
+  ) => {
     const params = new URLSearchParams(searchParams.toString());
-  
+
     switch (key) {
       case "place":
         setPlace("");
@@ -111,37 +154,73 @@ function useSearch() {
         params.delete("place");
         params.delete("city_google_place_id");
         break;
-  
+
       case "bedrooms":
         setBedrooms("");
         params.delete("bedrooms");
         break;
-  
-      default:
+
+      case "minPrice":
+        setMinPrice("");
+        params.delete("min_rent");
+        break;
+
+      case "maxPrice":
+        setMaxPrice("");
+        params.delete("max_rent");
+        break;
+
+      case "listingType":
+        setListingType("");
+        params.delete("listing_type");
+        break;
+
+      case "furnished":
+        setFurnished("");
+        params.delete("furnished");
         break;
     }
-  
+
     router.replace(`/listings?${params.toString()}`, { scroll: false });
   };
+
   const clearAllFilters = () => {
     setPlace("");
     setPlaceId("");
+    setBedrooms("");
+
+    setMinPrice("");
+    setMaxPrice("");
+    setListingType("");
+    setFurnished("");
 
     router.replace("/listings", { scroll: false });
   };
 
   return {
     place,
+    placeId,
     autocompleteOpen,
     predictions,
-    placeId,
+
+    bedrooms,
+    setBedrooms,
+
+    minPrice,
+    setMinPrice,
+
+    maxPrice,
+    setMaxPrice,
+
+    listingType,
+    setListingType,
+
+    furnished,
+    setFurnished,
 
     handlePlaceChange,
     selectPrediction,
     setAutocompleteOpen,
-
-    bedrooms,
-    setBedrooms,
 
     removeFilter,
     clearAllFilters,

@@ -21,9 +21,24 @@ export default function Filterbar() {
     removeFilter,
     clearAllFilters,
 
+    minPrice,
+    setMinPrice,
+
+    maxPrice,
+    setMaxPrice,
+
+    listingType,
+    setListingType,
+
+    furnished,
+    setFurnished,
+
     bedrooms,
     setBedrooms,
+    
   } = useSearch();
+
+
 
   const [modalOpen, setModalOpen] = useState(false);
   const inputRef = useRef<HTMLInputElement>(null);
@@ -37,6 +52,7 @@ export default function Filterbar() {
     clearAllFilters();
   }
 
+  // Active filter chips
   // Active filter chips
   const activeFilters: {
     id: string;
@@ -52,16 +68,59 @@ export default function Filterbar() {
           },
         ]
       : []),
+
     ...(bedrooms
       ? [
           {
             id: "bedrooms",
-            label: bedrooms === "0" ? "Studio" : `${bedrooms} Bedroom${bedrooms === "1" ? "" : "s"}`,
+            label:
+              bedrooms === "0"
+                ? "Studio"
+                : `${bedrooms} Bedroom${bedrooms === "1" ? "" : "s"}`,
             onRemove: () => removeFilter("bedrooms"),
           },
         ]
       : []),
 
+    ...(minPrice
+      ? [
+          {
+            id: "minPrice",
+            label: `Min ₱${Number(minPrice).toLocaleString()}`,
+            onRemove: () => removeFilter("minPrice"),
+          },
+        ]
+      : []),
+
+    ...(maxPrice
+      ? [
+          {
+            id: "maxPrice",
+            label: `Max ₱${Number(maxPrice).toLocaleString()}`,
+            onRemove: () => removeFilter("maxPrice"),
+          },
+        ]
+      : []),
+
+    ...(listingType
+      ? [
+          {
+            id: "listingType",
+            label: listingType,
+            onRemove: () => removeFilter("listingType"),
+          },
+        ]
+      : []),
+
+    ...(furnished
+      ? [
+          {
+            id: "furnished",
+            label: furnished,
+            onRemove: () => removeFilter("furnished"),
+          },
+        ]
+      : []),
   ];
 
   return (
@@ -284,6 +343,70 @@ export default function Filterbar() {
                   <p className="text-[11px] text-gray-400 mt-2">
                     Studio is treated as 0 bedrooms.
                   </p>
+                </div>
+
+                {/* Price Range */}
+                <div>
+                  <label className="flex items-center gap-1.5 text-xs font-semibold mb-2 text-gray-500 uppercase tracking-wide">
+                    Price Range{" "}
+                    <span className="text-gray-400 font-normal normal-case tracking-normal">
+                      (Monthly Rent)
+                    </span>
+                  </label>
+
+                  <div className="grid grid-cols-2 gap-3">
+                    <input
+                      type="number"
+                      placeholder="Min"
+                      value={minPrice}
+                      onChange={(e) => setMinPrice(e.target.value)}
+                      className="bg-[var(--color-border)]/30 rounded-xl px-3.5 py-2.5 text-sm outline-none focus:ring-2 focus:ring-[var(--color-primary)]/30"
+                    />
+
+                    <input
+                      type="number"
+                      placeholder="Max"
+                      value={maxPrice}
+                      onChange={(e) => setMaxPrice(e.target.value)}
+                      className="bg-[var(--color-border)]/30 rounded-xl px-3.5 py-2.5 text-sm outline-none focus:ring-2 focus:ring-[var(--color-primary)]/30"
+                    />
+                  </div>
+                </div>
+
+                {/* Listing Type */}
+                <div>
+                  <label className="flex items-center gap-1.5 text-xs font-semibold mb-2 text-gray-500 uppercase tracking-wide">
+                    Listing Type
+                  </label>
+
+                  <select
+                    value={listingType}
+                    onChange={(e) => setListingType(e.target.value)}
+                    className="w-full appearance-none bg-[var(--color-border)]/30 rounded-xl px-3.5 py-2.5 text-sm outline-none"
+                  >
+                    <option value="">Any type</option>
+                    <option value="entire_place">Entire Place</option>
+                    <option value="private_room">Private Room</option>
+                    <option value="shared_room">Shared Room</option>
+                    <option value="bedspace">Bedspace</option>
+                  </select>
+                </div>
+
+                {/* Furnished */}
+                <div>
+                  <label className="flex items-center gap-1.5 text-xs font-semibold mb-2 text-gray-500 uppercase tracking-wide">
+                    Furnishing
+                  </label>
+
+                  <select
+                    value={furnished}
+                    onChange={(e) => setFurnished(e.target.value)}
+                    className="w-full appearance-none bg-[var(--color-border)]/30 rounded-xl px-3.5 py-2.5 text-sm outline-none"
+                  >
+                    <option value="">Any</option>
+                    <option value="true">Furnished</option>
+                    <option value="false">Unfurnished</option>
+                  </select>
                 </div>
               </div>
               
