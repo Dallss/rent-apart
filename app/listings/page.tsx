@@ -4,9 +4,9 @@ import { useEffect, useMemo, useRef, useState } from "react";
 import ListingList from "./components/ListingList";
 import Filterbar from "./components/FilterBar";
 import useRuntimeConfig from "@/hooks/useRuntimeConfig";
-import useLazyFetchApartments from "@/hooks/useLazyFetchApartments";
 import { useSearchParams } from "next/navigation";
 import { ListingMapHandle } from "./components/ListingMap";
+import { useInfiniteQuery, type InfiniteData } from "@tanstack/react-query";
 
 import dynamic from "next/dynamic";
 
@@ -22,25 +22,15 @@ export default function Page() {
   const [activeId, setActiveId] = useState<string | null>(null);
   const mapRef = useRef<ListingMapHandle>(null);
 
-
   const searchParams = useSearchParams();
 
   const placeId = searchParams.get("placeId");
 
-
-  useEffect(() => {
-    if (!placeId || !mapRef.current) return;
   
-    const service = new google.maps.places.PlacesService(document.createElement("div"));
-    service.getDetails({ placeId, fields: ["geometry"] }, (result, status) => {
-      if (status !== google.maps.places.PlacesServiceStatus.OK || !result?.geometry?.location) return;
-      mapRef.current?.flyTo({
-        lat: result.geometry.location.lat(),
-        lng: result.geometry.location.lng(),
-        zoom: 13,
-      });
-    });
-  }, [placeId]);
+  const url = useMemo(() => {
+    if (!config?.apiUrl) return null;
+    return `${config.apiUrl}/api/listings/?${searchParams.toString()}`;
+  }, [searchParams, config?.apiUrl]);
 
   const {
     data,
@@ -50,8 +40,16 @@ export default function Page() {
     fetchNextPage,
     hasNextPage,
     isFetchingNextPage,
-  } = useLazyFetchApartments({
-    api: config?.apiUrl ? `${config.apiUrl}/api/listings/` : "",
+  } = useInfiniteQuery({
+    queryKey: ["listings", url],
+    enabled: !!url,
+    initialPageParam: url ?? "",
+    queryFn: async ({ pageParam }) => {
+      const res = await fetch(pageParam);
+      if (!res.ok) throw new Error("Failed to fetch listings");
+      return res.json();
+    },
+    getNextPageParam: (lastPage) => lastPage.next ?? undefined,
   });
 
   const lazyLoading = {
@@ -85,6 +83,20 @@ export default function Page() {
   const toggle = (id: string) => {
     setActiveId((prev) => (prev === id ? null : id));
   };
+
+  useEffect(() => {
+    if (!placeId || !mapRef.current) return;
+  
+    const service = new google.maps.places.PlacesService(document.createElement("div"));
+    service.getDetails({ placeId, fields: ["geometry"] }, (result, status) => {
+      if (status !== google.maps.places.PlacesServiceStatus.OK || !result?.geometry?.location) return;
+      mapRef.current?.flyTo({
+        lat: result.geometry.location.lat(),
+        lng: result.geometry.location.lng(),
+        zoom: 13,
+      });
+    });
+  }, [placeId]);
 
   if (isLoading) {
     return <div className="p-6 text-sm text-zinc-500">Loading listings...</div>;
