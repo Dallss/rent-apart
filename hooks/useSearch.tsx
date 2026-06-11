@@ -25,7 +25,7 @@ function useSearch() {
     () => searchParams.get("listing_type") ?? ""
   );
   const [furnished, setFurnished] = useState(
-    () => searchParams.get("furnished") ?? ""
+    () => searchParams.get("is_furnished") ?? ""
   );
 
   // SYNC FROM URL
@@ -37,7 +37,7 @@ function useSearch() {
     setMinPrice(searchParams.get("min_rent") ?? "");
     setMaxPrice(searchParams.get("max_rent") ?? "");
     setListingType(searchParams.get("listing_type") ?? "");
-    setFurnished(searchParams.get("furnished") ?? "");
+    setFurnished(searchParams.get("is_furnished") ?? "");
   }, [searchParams]);
 
   const [autocompleteOpen, setAutocompleteOpen] = useState(false);
@@ -122,7 +122,7 @@ function useSearch() {
     if (minPrice) params.set("min_rent", minPrice);
     if (maxPrice) params.set("max_rent", maxPrice);
     if (listingType) params.set("listing_type", listingType);
-    if (furnished) params.set("furnished", furnished);
+    if (furnished) params.set("is_furnished", furnished);
 
     router.push(`/listings?${params.toString()}`);
   }, [
@@ -177,7 +177,7 @@ function useSearch() {
 
       case "furnished":
         setFurnished("");
-        params.delete("furnished");
+        params.delete("is_furnished");
         break;
     }
 

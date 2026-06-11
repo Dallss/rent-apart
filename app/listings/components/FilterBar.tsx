@@ -106,7 +106,12 @@ export default function Filterbar() {
       ? [
           {
             id: "listingType",
-            label: listingType,
+            label: listingType
+                    .toLowerCase()
+                    .replace(/_/g, " ")
+                    .replace(/\s+/g, " ")
+                    .trim()
+                    .replace(/\b\w/g, (char) => char.toUpperCase()),
             onRemove: () => removeFilter("listingType"),
           },
         ]
@@ -116,7 +121,7 @@ export default function Filterbar() {
       ? [
           {
             id: "furnished",
-            label: furnished,
+            label: furnished == "true" ? "Furnished" : "Unfurnished",
             onRemove: () => removeFilter("furnished"),
           },
         ]

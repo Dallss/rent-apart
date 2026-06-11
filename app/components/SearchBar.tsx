@@ -1,7 +1,7 @@
 "use client";
 
 import { Search } from "lucide-react";
-import { useRef } from "react";
+import { useRef, useState } from "react";
 import {
   motion,
   useScroll,
@@ -22,11 +22,18 @@ export default function SearchBar() {
 
     bedrooms,
     setBedrooms,
+
+    minPrice,
+    setMinPrice,
+    maxPrice,
+    setMaxPrice,
   } = useSearch();
 
   const inputRef = useRef<HTMLInputElement>(null);
   const { scrollY } = useScroll();
   const scale = useTransform(scrollY, [0, 200], [1, 0.9]);
+
+  const [priceOpen, setPriceOpen] = useState(false);
 
   return (
     <div className="sticky top-2 z-30 flex justify-center m-1 p-1">
@@ -34,7 +41,7 @@ export default function SearchBar() {
         style={{ scale }}
         className="flex items-center w-auto origin-center bg-[var(--color-surface)] rounded-full shadow-sm border border-[var(--color-border)] overflow-visible"
       >
-        {/* Place */}
+        {/* WHERE */}
         <div className="min-w-[300px] px-5 py-2 relative">
           <p className="text-xs font-semibold">Where</p>
 
@@ -104,8 +111,8 @@ export default function SearchBar() {
 
         <div className="h-8 w-px bg-[var(--color-border)]" />
 
-        {/* Bedrooms */}
-        <div className="px-5 py-2 min-w-[180px]">
+        {/* BEDROOMS */}
+        <div className="px-5 py-2 min-w-[160px]">
           <p className="text-xs font-semibold">Bedrooms</p>
 
           <select
@@ -113,19 +120,77 @@ export default function SearchBar() {
             onChange={(e) => setBedrooms(e.target.value)}
             className="w-full bg-transparent outline-none text-sm text-gray-600 cursor-pointer appearance-none"
           >
-            <option value="">Any bedrooms</option>
+            <option value="">Any</option>
             <option value="0">Studio</option>
             <option value="1">1 Bedroom</option>
             <option value="2">2 Bedrooms</option>
             <option value="3">3 Bedrooms</option>
             <option value="4">4 Bedrooms</option>
-            <option value="5">5 Bedrooms</option>
+            <option value="5">5+ Bedrooms</option>
           </select>
         </div>
 
         <div className="h-8 w-px bg-[var(--color-border)]" />
 
-        {/* Search */}
+        {/* PRICE RANGE (ONE FIELD) */}
+        <div className="relative px-5 py-2 min-w-[220px]">
+          <p className="text-xs font-semibold">Price Range</p>
+
+          <button
+            onClick={() => setPriceOpen((v) => !v)}
+            className="w-full text-left text-sm text-gray-600 bg-transparent outline-none"
+          >
+            {minPrice || maxPrice
+              ? `₱${minPrice || "0"} - ₱${maxPrice || "Any"}`
+              : "Any price"}
+          </button>
+
+          <AnimatePresence>
+            {priceOpen && (
+              <motion.div
+                initial={{ opacity: 0, y: 6 }}
+                animate={{ opacity: 1, y: 0 }}
+                exit={{ opacity: 0, y: 6 }}
+                className="absolute top-full left-0 mt-3 w-64 bg-[var(--color-surface)] border border-[var(--color-border)] rounded-xl shadow-xl p-3 z-50"
+              >
+                <p className="text-xs font-semibold text-gray-500 mb-2">
+                  Set price range (₱)
+                </p>
+
+                <div className="flex gap-2">
+                  <input
+                    type="number"
+                    placeholder="Min"
+                    value={minPrice}
+                    onChange={(e) => setMinPrice(e.target.value)}
+                    className="w-full border border-[var(--color-border)] rounded-lg px-2 py-1 text-sm outline-none"
+                  />
+
+                  <input
+                    type="number"
+                    placeholder="Max"
+                    value={maxPrice}
+                    onChange={(e) => setMaxPrice(e.target.value)}
+                    className="w-full border border-[var(--color-border)] rounded-lg px-2 py-1 text-sm outline-none"
+                  />
+                </div>
+
+                <div className="flex justify-end mt-3">
+                  <button
+                    onClick={() => setPriceOpen(false)}
+                    className="text-xs px-3 py-1 rounded-md bg-[var(--color-primary)] text-white"
+                  >
+                    Done
+                  </button>
+                </div>
+              </motion.div>
+            )}
+          </AnimatePresence>
+        </div>
+
+        <div className="h-8 w-px bg-[var(--color-border)]" />
+
+        {/* SEARCH */}
         <button
           onClick={search}
           className="mr-2 h-12 w-12 rounded-full bg-[var(--color-primary)] flex items-center justify-center text-white hover:opacity-90 active:scale-95 transition"
