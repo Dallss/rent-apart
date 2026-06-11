@@ -1,7 +1,7 @@
 "use client";
 
 import Link from "next/link";
-import { Heart } from "lucide-react";
+import { Heart, MoveRight } from "lucide-react";
 import { useState, useEffect, useRef } from "react";
 import { useAuth } from "@/providers/AuthProvider";
 
@@ -83,14 +83,10 @@ export default function ListingList({
                   : "hover:ring-1 hover:ring-zinc-200"
               }`}
             >
-              <Link
-                href={`/listings/${item.id}`}
-                className="block"
-                onClick={(e) => e.preventDefault()}
-              >
-                <article className="flex w-full gap-4 border border-zinc-200 bg-white p-3 transition hover:border-zinc-300 hover:shadow-sm">
+             <div className="block">
+                <article className="flex w-full gap-4 border border-zinc-200 bg-white transition hover:border-zinc-300 hover:shadow-sm">
                   {/* Image */}
-                  <div className="relative h-28 w-28 shrink-0 overflow-hidden rounded-xl">
+                  <div className="relative h-28 w-28 shrink-0 overflow-hidden rounded-xl m-3 mr-0">
                     <button
                       type="button"
                       onClick={(e) => {
@@ -102,19 +98,13 @@ export default function ListingList({
                     >
                       <Heart
                         className={`h-4 w-4 transition ${
-                          isFavorite
-                            ? "fill-red-500 text-red-500"
-                            : "text-zinc-700"
+                          isFavorite ? "fill-red-500 text-red-500" : "text-zinc-700"
                         }`}
                       />
                     </button>
 
                     {item.image ? (
-                      <img
-                        src={item.image}
-                        alt={item.title}
-                        className="h-full w-full object-cover"
-                      />
+                      <img src={item.image} alt={item.title} className="h-full w-full object-cover" />
                     ) : (
                       <div className="flex h-full items-center justify-center bg-zinc-100 text-xs text-zinc-400">
                         No image
@@ -123,43 +113,43 @@ export default function ListingList({
                   </div>
 
                   {/* Content */}
-                  <div className="flex min-w-0 flex-1 flex-col">
+                  <div className="flex min-w-0 flex-1 flex-col py-3">
                     <div className="flex items-start justify-between gap-4">
                       <div className="min-w-0">
-                        <h3 className="truncate text-base font-semibold text-zinc-900">
-                          {item.title}
-                        </h3>
-                        <p className="mt-1 truncate text-sm text-zinc-500">
-                          {item.neighborhood}
-                        </p>
+                        <h3 className="truncate text-base font-semibold text-zinc-900">{item.title}</h3>
+                        <p className="mt-1 truncate text-sm text-zinc-500">{item.neighborhood}</p>
                       </div>
-
                       <div className="shrink-0 text-right">
-                        <div className="text-base font-semibold text-zinc-900">
-                          {formatRent(item.rent)}
-                        </div>
+                        <div className="text-base font-semibold text-zinc-900">{formatRent(item.rent)}</div>
                         <div className="text-xs text-zinc-500">per month</div>
                       </div>
                     </div>
 
                     <div className="mt-3 flex items-center gap-2 text-sm text-zinc-600">
                       <span>
-                        {item.bedrooms === 0
-                          ? "Studio"
-                          : `${item.bedrooms} Bedroom${item.bedrooms > 1 ? "s" : ""}`}
+                        {item.bedrooms === 0 ? "Studio" : `${item.bedrooms} Bedroom${item.bedrooms > 1 ? "s" : ""}`}
                       </span>
                       <span className="text-zinc-300">•</span>
-                      <span>
-                        {item.rating == null ? "No rating yet" : `⭐ ${item.rating}`}
-                      </span>
+                      <span>{item.rating == null ? "No rating yet" : `⭐ ${item.rating}`}</span>
                     </div>
 
-                    <p className="mt-3 line-clamp-2 text-sm text-zinc-600">
-                      {item.blurb}
-                    </p>
+                    <p className="mt-3 line-clamp-2 text-sm text-zinc-600">{item.blurb}</p>
                   </div>
+
+                  {/* Link */}
+                  <Link
+                    href={`/listings/${item.id}`}
+                    className={`flex flex-col items-center justify-center gap-1 bg-orange-400 text-white transition-all duration-300 overflow-hidden ${
+                      activeId === item.id
+                        ? "w-16 px-5 opacity-100"
+                        : "w-0 px-0 opacity-0 group-hover:w-16 group-hover:px-5 group-hover:opacity-100"
+                    }`}
+                  >
+                    <MoveRight className="w-5 h-5 stroke-[3]" />
+                    <span className="text-xs font-medium tracking-wide whitespace-nowrap">View</span>
+                  </Link>
                 </article>
-              </Link>
+              </div>
             </li>
           );
         })}
