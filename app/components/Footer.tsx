@@ -12,7 +12,7 @@ export default function Footer() {
           {/* Brand */}
           <div>
             <h3 className="text-lg font-semibold tracking-tight text-neutral-900">
-              YourBrand
+              RentApart
             </h3>
             <p className="mt-3 text-sm text-neutral-500">
               Simple, modern platform for finding great places and experiences.
@@ -90,7 +90,7 @@ export default function Footer() {
         {/* Bottom bar */}
         <div className="mt-10 flex flex-col gap-4 border-t border-neutral-200 pt-6 text-sm text-neutral-500 sm:flex-row sm:items-center sm:justify-between">
 
-          <p>© {year} YourBrand. All rights reserved.</p>
+          <p>© {year} RentApart. All rights reserved.</p>
 
           <div className="flex gap-4">
             <Link href="#" className="hover:text-neutral-900">Terms</Link>

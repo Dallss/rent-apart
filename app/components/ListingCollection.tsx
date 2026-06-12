@@ -56,7 +56,7 @@ export default function ListingCollection({
 
   return (
     <div className="mb-8">
-      <div className="ml-3 mb-3">
+      <div className="ml-6 mr-6">
         <h1 className="text-xl font-thin tracking-wide">
           {title}
         </h1>
