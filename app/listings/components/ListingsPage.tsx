@@ -90,7 +90,7 @@ export default function Page() {
           lng,
         });
 
-        const zoom = 11;
+        const zoom = 12;
   
         setCurrentPlace({ lat, lng, zoom });
       }
