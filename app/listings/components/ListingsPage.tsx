@@ -1,5 +1,5 @@
 "use client";
-import {  useMemo, useState } from "react";
+import {  useMemo, useState, useEffect } from "react";
 import ListingList from "./ListingList";
 import Filterbar from "./FilterBar";
 import useRuntimeConfig from "@/hooks/useRuntimeConfig";
@@ -30,6 +30,72 @@ export default function Page() {
   const { config } = useRuntimeConfig();
   const [activeId, setActiveId] = useState<string | null>(null);
   const searchParams = useSearchParams();
+
+  const [currentPlace, setCurrentPlace] = useState<{
+    lat: number;
+    lng: number;
+    zoom: number;
+  } | null>(null);
+  
+  const cityPlaceId = searchParams.get("city_google_place_id");
+
+  useEffect(() => {
+    if (!cityPlaceId) {
+      console.warn("No city_place_id found in URL");
+      return;
+    }
+  
+    if (!window.google?.maps?.places) {
+      console.error("Google Places API is not loaded");
+      return;
+    }
+  
+    console.log("Fetching coordinates for place:", cityPlaceId);
+  
+    const service = new google.maps.places.PlacesService(
+      document.createElement("div")
+    );
+  
+    service.getDetails(
+      {
+        placeId: cityPlaceId,
+        fields: ["geometry"],
+      },
+      (place, status) => {
+        if (status !== google.maps.places.PlacesServiceStatus.OK) {
+          console.error(
+            "PlacesService.getDetails failed",
+            {
+              placeId: cityPlaceId,
+              status,
+            }
+          );
+          return;
+        }
+  
+        if (!place?.geometry?.location) {
+          console.error(
+            "Place found but geometry.location is missing",
+            place
+          );
+          return;
+        }
+  
+        const lat = place.geometry.location.lat();
+        const lng = place.geometry.location.lng();
+  
+        console.log("Resolved place coordinates:", {
+          placeId: cityPlaceId,
+          lat,
+          lng,
+        });
+
+        const zoom = 12;
+  
+        setCurrentPlace({ lat, lng, zoom });
+      }
+    );
+  }, [cityPlaceId]);
 
   const url = useMemo(() => {
     if (!config?.apiUrl) return null;
@@ -88,15 +154,14 @@ export default function Page() {
 
   return (
     <div className="flex h-[calc(100vh-64px)] overflow-hidden">
-      {/* LISTINGS */}
+
       <div className="flex flex-col w-[45%] overflow-hidden shadow-sm">
         <Filterbar />
-
+        
+         {/* LISTINGS */}
         <div className="flex-1 overflow-y-auto">
-          {/* LOADING */}
           {isLoading && <ListingSkeleton />}
 
-          {/* ERROR */}
           {!isLoading && isError && (
             <div className="p-6 text-sm text-red-500 space-y-3">
               <p>{error?.message ?? "Failed to load listings"}</p>
@@ -109,7 +174,6 @@ export default function Page() {
             </div>
           )}
 
-          {/* EMPTY */}
           {isEmpty && (
             <div className="flex flex-col items-center justify-center h-full text-zinc-500 text-sm px-6 text-center">
               <p className="font-medium">No listings found</p>
@@ -119,7 +183,6 @@ export default function Page() {
             </div>
           )}
 
-          {/* SUCCESS */}
           {!isLoading && !isError && listings.length > 0 && (
             <ListingList
               listings={listings}
@@ -129,7 +192,6 @@ export default function Page() {
             />
           )}
 
-          {/* INFINITE LOAD INDICATOR */}
           {isFetchingNextPage && (
             <div className="p-3 text-xs text-zinc-400 animate-pulse">
               Loading more...
@@ -138,12 +200,13 @@ export default function Page() {
         </div>
       </div>
 
-      {/* MAP (unchanged / external responsibility) */}
+      {/* MAP */}
       <div className="flex-1 relative">
         <ListingMap
           listings={listings}
           activeId={activeId}
           onSelect={toggle}
+          flyto={currentPlace}
         />
       </div>
     </div>
