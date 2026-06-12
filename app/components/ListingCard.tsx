@@ -39,7 +39,7 @@ export default function ListingCard({ item }: ListingProps) {
   }
 
   return (
-    <article className="flex h-full flex-col w-[210px] overflow-hidden p-[10px]">
+    <article className="flex h-full flex-col w-[190px] overflow-hidden p-[10px]">
       <div className="relative aspect-square overflow-hidden w-full rounded-xl mb-[5px] shadow-xs">
         
         {/* Favorite button */}
