@@ -13,10 +13,16 @@ interface Listing {
   rent: number;
 }
 
+interface FlyTo {
+  lat: number;
+  lng: number;
+  zoom: number;
+}
 interface ListingMapProps {
   listings: Listing[];
   activeId?: string | null;
   onSelect: (id: string) => void;
+  flyto: FlyTo | null;
 }
 
 export interface ListingMapHandle {
@@ -26,12 +32,23 @@ export interface ListingMapHandle {
 
 // ─── Inner: accesses useMap() ─────────────────────────────────────────────────
 
-function FocusController({ listings, activeId, controllerRef }: {
+function FocusController({ listings, activeId, controllerRef, flyto }: {
   listings: Listing[];
   activeId?: string | null;
   controllerRef: React.Ref<ListingMapHandle>;
+  flyto: FlyTo | null;
 }) {
   const { current: map } = useMap();
+
+  useEffect(() => {
+    if (!flyto) return;
+  
+    map?.flyTo({
+      center: [flyto.lng, flyto.lat],
+      zoom: flyto.zoom ?? 13,
+      duration: 800,
+    });
+  }, [flyto, map]);
 
   useEffect(() => {
     if (!activeId || !map) return;
@@ -50,6 +67,7 @@ function FocusController({ listings, activeId, controllerRef }: {
   }));
   return null;
 }
+
 
 // ─── Markers ──────────────────────────────────────────────────────────────────
 
@@ -93,13 +111,13 @@ function Markers({ listings, activeId, onSelect }: {
 // ─── Export ───────────────────────────────────────────────────────────────────
 
 const ListingMap = forwardRef<ListingMapHandle, ListingMapProps>(
-  ({ listings, activeId, onSelect }, ref) => {
+  ({ listings, activeId, onSelect, flyto }, ref) => {
     const [mapLoaded, setMapLoaded] = useState(false);
 
     return (
       <div className="relative w-full h-full">
         {!mapLoaded && (
-          <div className="absolute inset-0 z-10 flex flex-col items-center justify-center bg-zinc-50 gap-3">
+          <div className="absolute inset-0 z-10 flex flex-col items-center justify-center bg-zinc-100 gap-3">
             <div className="w-6 h-6 rounded-full border-2 border-zinc-300 border-t-zinc-800 animate-spin" />
             <span className="text-xs text-zinc-400 font-medium">Loading map...</span>
           </div>
@@ -113,7 +131,7 @@ const ListingMap = forwardRef<ListingMapHandle, ListingMapProps>(
           mapStyle="mapbox://styles/mapbox/standard"
           onLoad={() => setMapLoaded(true)}
         >
-          <FocusController listings={listings} activeId={activeId} controllerRef={ref} />
+          <FocusController listings={listings} activeId={activeId} controllerRef={ref} flyto={flyto} />
           <Markers listings={listings} activeId={activeId} onSelect={onSelect} />
         </Map>
       </div>
