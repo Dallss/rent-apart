@@ -72,8 +72,8 @@ export default async function ListingDetailPage({
   const monthlyRent = parseFloat(listing.monthly_rent);
 
   return (
-    <main className="min-h-screen bg-white text-foreground flex flex-col justify-center py-10 pb-0">
-      <div className="w-full max-w-6xl pb-10 px-6">
+    <main className="bg-white text-foreground flex flex-col items-center py-10 pb-0">
+      <div className="w-full max-w-6xl pb-10 px-6 min-h-screen">
 
         {/* HEADER */}
         <section className="mb-6">
@@ -197,8 +197,8 @@ export default async function ListingDetailPage({
           </div>
 
           {/* RIGHT COLUMN */}
-          <aside>
-            <div className="sticky top-[200px] border border-border rounded-3xl p-6 shadow-lg bg-card">
+          <aside className="">
+            <div className="border border-border rounded-3xl p-6 shadow-lg bg-card">
 
               <div className="flex items-end gap-1 mb-6">
                 <span className="text-3xl font-semibold">
