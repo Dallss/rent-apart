@@ -3,6 +3,12 @@
 import { notFound } from "next/navigation";
 import ListingImages from "./components/ListingImages";
 import Link from "next/link";
+import { iconMap, DefaultAmenityIcon } from "@/lib/icons";
+
+import { Suspense } from "react";
+import ListingImagesLoading from "./components/ListingImagesLoading";
+
+import Footer from "@/app/components/Footer";
 
 interface ListingImage {
   id: number;
@@ -66,8 +72,8 @@ export default async function ListingDetailPage({
   const monthlyRent = parseFloat(listing.monthly_rent);
 
   return (
-    <main className="min-h-screen bg-white text-foreground flex justify-center px-6 py-10">
-      <div className="w-full max-w-6xl">
+    <main className="min-h-screen bg-white text-foreground flex flex-col justify-center py-10 pb-0">
+      <div className="w-full max-w-6xl pb-10 px-6">
 
         {/* HEADER */}
         <section className="mb-6">
@@ -82,7 +88,9 @@ export default async function ListingDetailPage({
 
         {/* IMAGES */}
         <section className="overflow-hidden rounded-3xl mb-10">
-          <ListingImages images={listing.images} />
+          <Suspense fallback={<ListingImagesLoading />}>
+            <ListingImages images={listing.images} />
+          </Suspense>
         </section>
 
         {/* MAIN GRID */}
@@ -145,20 +153,47 @@ export default async function ListingDetailPage({
 
             {/* AMENITIES */}
             {listing.amenities?.length > 0 && (
-              <section>
-                <h2 className="text-xl font-semibold mb-5">
+              <section className="pt-2 pb-8">
+                <h2 className="text-xl font-semibold mb-6">
                   What this place offers
                 </h2>
-                <div className="grid grid-cols-1 sm:grid-cols-2 gap-y-4 text-muted">
-                  {listing.amenities.map((amenity) => (
-                    <div key={amenity.id} className="flex items-center gap-2">
-                      <span>{amenity.icon}</span>
-                      <span>{amenity.name}</span>
-                    </div>
-                  ))}
+
+                <div className="flex flex-wrap gap-3">
+                  {listing.amenities.map((amenity) => {
+                    const Icon =
+                      iconMap[amenity.icon as keyof typeof iconMap] ??
+                      DefaultAmenityIcon;
+
+                    return (
+                      <div
+                        key={amenity.id}
+                        className="
+                          inline-flex items-center gap-2
+                          px-4 py-2.5
+                          rounded-full
+                          bg-orange-50
+                          border border-orange-100
+                          text-black
+                          shadow-sm
+                          transition-all duration-200
+                          hover:bg-orange-100
+                        "
+                      >
+                        <Icon
+                          size={16}
+                          className="text-orange-600 shrink-0"
+                        />
+
+                        <span className="text-sm font-medium">
+                          {amenity.name}
+                        </span>
+                      </div>
+                    );
+                  })}
                 </div>
               </section>
             )}
+
           </div>
 
           {/* RIGHT COLUMN */}
@@ -198,9 +233,103 @@ export default async function ListingDetailPage({
 
             </div>
           </aside>
-
         </div>
+
+        {/* RATINGS & REVIEWS (HARDCODED FOR NOW) */}
+        <section className="border-t border-border pt-8">
+          <h2 className="text-xl font-semibold mb-6">
+            Reviews{" "}
+            <span className="text-xs font-normal text-zinc-400">
+              (dev note: This part is still hardcoded)
+            </span>
+          </h2>
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+            <div className="rounded-2xl border border-border p-5">
+              <div className="flex items-center gap-3 mb-3">
+                <div className="w-10 h-10 rounded-full bg-orange-100 flex items-center justify-center font-semibold">
+                  M
+                </div>
+
+                <div>
+                  <p className="font-medium">Maria Santos</p>
+                  <p className="text-sm text-muted">
+                    Stayed 3 months · March 2026
+                  </p>
+                </div>
+              </div>
+
+              <p className="text-muted leading-7">
+                The villa exceeded expectations. The location was quiet,
+                the pool was always clean, and the sea view was incredible
+                every morning.
+              </p>
+            </div>
+
+            <div className="rounded-2xl border border-border p-5">
+              <div className="flex items-center gap-3 mb-3">
+                <div className="w-10 h-10 rounded-full bg-orange-100 flex items-center justify-center font-semibold">
+                  J
+                </div>
+
+                <div>
+                  <p className="font-medium">James Reyes</p>
+                  <p className="text-sm text-muted">
+                    Stayed 1 month · January 2026
+                  </p>
+                </div>
+              </div>
+
+              <p className="text-muted leading-7">
+                Fast WiFi, spacious rooms, and responsive landlord.
+                Perfect for remote work while staying near the beach.
+              </p>
+            </div>
+
+            <div className="rounded-2xl border border-border p-5">
+              <div className="flex items-center gap-3 mb-3">
+                <div className="w-10 h-10 rounded-full bg-orange-100 flex items-center justify-center font-semibold">
+                  A
+                </div>
+
+                <div>
+                  <p className="font-medium">Anna Cruz</p>
+                  <p className="text-sm text-muted">
+                    Stayed 6 months · August 2025
+                  </p>
+                </div>
+              </div>
+
+              <p className="text-muted leading-7">
+                Security and amenities were excellent. The furnished
+                interior made moving in incredibly easy.
+              </p>
+            </div>
+
+            <div className="rounded-2xl border border-border p-5">
+              <div className="flex items-center gap-3 mb-3">
+                <div className="w-10 h-10 rounded-full bg-orange-100 flex items-center justify-center font-semibold">
+                  D
+                </div>
+
+                <div>
+                  <p className="font-medium">Daniel Lim</p>
+                  <p className="text-sm text-muted">
+                    Stayed 2 months · November 2025
+                  </p>
+                </div>
+              </div>
+
+              <p className="text-muted leading-7">
+                One of the best rental experiences I've had. Great
+                neighborhood, clean property, and amazing beachfront view.
+              </p>
+            </div>
+          </div>
+
+        </section>
       </div>
+
+      <Footer />
     </main>
   );
 }
