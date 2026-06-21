@@ -1,13 +1,9 @@
-
 // TODO: Deprecate this. this is terrible abstraction.
-import {
-   useInfiniteQuery,
-   InfiniteData,
- } from "@tanstack/react-query";
+import { useInfiniteQuery, InfiniteData } from "@tanstack/react-query";
 
 interface FetchParams {
-  api: string;
-  params?: ListingQueryParams;
+   api: string;
+   params?: ListingQueryParams;
 }
 
 type ListingQueryParams = {
@@ -40,10 +36,9 @@ type PaginatedResponse<T> = {
 
 export type { ListingQueryParams, FetchParams };
 
-
 function buildListingsUrl(
    baseUrl: string,
-   params: ListingQueryParams = {}
+   params: ListingQueryParams = {},
 ): string {
    const searchParams = new URLSearchParams();
 
@@ -55,27 +50,23 @@ function buildListingsUrl(
 
    const queryString = searchParams.toString();
 
-   return queryString
-      ? `${baseUrl}?${queryString}`
-      : baseUrl;
+   return queryString ? `${baseUrl}?${queryString}` : baseUrl;
 }
 const authFetch = async (url: string, options: RequestInit = {}) => {
-   console.log('using authfetch');
    const res = await fetch(url, {
-     ...options,
-     credentials: "include", // IMPORTANT: sends cookies
-     headers: {
-       ...(options.headers || {}),
-       "Content-Type": "application/json",
-     },
+      ...options,
+      credentials: "include", // IMPORTANT: sends cookies
+      headers: {
+         ...(options.headers || {}),
+         "Content-Type": "application/json",
+      },
    });
- 
+
    if (!res.ok) throw new Error("Request failed");
    return res;
- };
+};
 
 function useLazyFetch({ api, params }: FetchParams) {
-   
    const url = buildListingsUrl(api, params);
 
    const {
@@ -86,33 +77,33 @@ function useLazyFetch({ api, params }: FetchParams) {
       fetchNextPage,
       hasNextPage,
       isFetchingNextPage,
-    } = useInfiniteQuery<
+   } = useInfiniteQuery<
       PaginatedResponse<ApiListing>,
       Error,
       InfiniteData<PaginatedResponse<ApiListing>>,
       [string, string],
       string
-    >({
+   >({
       queryKey: ["listings", url],
-  
-      initialPageParam: url,
-  
-      queryFn: async ({ pageParam }) => {
-        const res = await authFetch(pageParam);
-  
-        if (!res.ok) {
-          throw new Error("Failed to fetch listings");
-        }
-  
-        return res.json();
-      },
-  
-      getNextPageParam: (lastPage) => {
-        return lastPage.next ?? undefined;
-      },
-    });
 
-    return {
+      initialPageParam: url,
+
+      queryFn: async ({ pageParam }) => {
+         const res = await authFetch(pageParam);
+
+         if (!res.ok) {
+            throw new Error("Failed to fetch listings");
+         }
+
+         return res.json();
+      },
+
+      getNextPageParam: (lastPage) => {
+         return lastPage.next ?? undefined;
+      },
+   });
+
+   return {
       data,
       isLoading,
       isError,
@@ -120,7 +111,7 @@ function useLazyFetch({ api, params }: FetchParams) {
       fetchNextPage,
       hasNextPage,
       isFetchingNextPage,
-    };
+   };
 }
 
 export default useLazyFetch;
