@@ -1,151 +1,161 @@
 "use client";
 
-import { 
-   postGoogleIdToken, 
-   clearStoredSession, 
-   persistSession, 
-   readStoredSession 
-} from "@/lib/auth";
-
+import AuthModal from "@/modals/AuthModal";
 import {
-  createContext,
-  startTransition,
-  useCallback,
-  useContext,
-  useEffect,
-  useMemo,
-  useState,
+   getCurrentSession,
+   postGoogleIdToken,
+   type AuthProfile,
+} from "@/lib/auth";
+import {
+   createContext,
+   useCallback,
+   useContext,
+   useEffect,
+   useMemo,
+   useState,
 } from "react";
 
-import AuthModal from "@/modals/AuthModal";
+function isHost(profile: AuthProfile | null): boolean {
+   return profile?.capabilities.leasing.manage ?? false;
+}
 
 type AuthContextValue = {
-  ready: boolean;
-  isSignedIn: boolean;
-  userEmail: string | null;
-  isHost: boolean;
-  canManageLeases: boolean;
-  authError: string | null;
-  clearAuthError: () => void;
-
-  signInWithGoogleCredential: (credential: string) => Promise<void>;
-  signOut: () => void;
-
-  showAuthModal: boolean;
-  setShowAuthModal: (v: boolean) => void;
+   ready: boolean;
+   loading: boolean;
+   isSignedIn: boolean;
+   profile: AuthProfile | null;
+   userEmail: string | null;
+   isHost: boolean;
+   needsOnboarding: boolean;
+   authError: string | null;
+   clearAuthError: () => void;
+   refreshSession: () => Promise<void>;
+   signInWithGoogleCredential: (credential: string) => Promise<void>;
+   signOut: () => Promise<void>;
+   showAuthModal: boolean;
+   setShowAuthModal: (v: boolean) => void;
 };
 
 const AuthContext = createContext<AuthContextValue | null>(null);
 
 export function AuthProvider({ children }: { children: React.ReactNode }) {
-  const [ready, setReady] = useState(false);
+   const [ready, setReady] = useState(false);
+   const [loading, setLoading] = useState(false);
+   const [profile, setProfile] = useState<AuthProfile | null>(null);
+   const [authError, setAuthError] = useState<string | null>(null);
+   const [showAuthModal, setShowAuthModal] = useState(false);
 
-  const [isSignedIn, setIsSignedIn] = useState(false);
-  const [userEmail, setUserEmail] = useState<string | null>(null);
-  const [canManageLeases, setCanManageLeases] = useState(false);
+   const clearAuthError = useCallback(() => setAuthError(null), []);
 
-  const [authError, setAuthError] = useState<string | null>(null);
-  const [showAuthModal, setShowAuthModal] = useState(false);
+   const refreshSession = useCallback(async () => {
+      setLoading(true);
 
-  // -------------------------
-  // Load session
-  // -------------------------
-  useEffect(() => {
-    startTransition(() => {
-      const { accessToken, email, canManageLeases } = readStoredSession();
+      try {
+         const nextProfile = await getCurrentSession();
+         setProfile(nextProfile);
+         setAuthError(null);
+      } catch (err) {
+         const message =
+            err instanceof Error ? err.message : "Failed to load session";
+         setAuthError(message);
+         setProfile(null);
+      } finally {
+         setLoading(false);
+         setReady(true);
+      }
+   }, []);
 
-      setIsSignedIn(Boolean(accessToken));
-      setUserEmail(email);
-      setCanManageLeases(canManageLeases);
-      setReady(true);
-    });
-  }, []);
+   const signInWithGoogleCredential = useCallback(
+      async (credential: string) => {
+         setAuthError(null);
+         setLoading(true);
 
-  const clearAuthError = useCallback(() => setAuthError(null), []);
+         try {
+            await postGoogleIdToken(credential);
+            const nextProfile = await getCurrentSession();
+            setProfile(nextProfile);
+            setShowAuthModal(false);
+            setReady(true);
+         } catch (err) {
+            const message =
+               err instanceof Error ? err.message : "Sign-in failed";
+            setAuthError(message);
+            setProfile(null);
+            setReady(true);
+            throw err;
+         } finally {
+            setLoading(false);
+         }
+      },
+      [],
+   );
 
-  // -------------------------
-  // Backend verification (UNCHANGED)
-  // -------------------------
-  const signInWithGoogleCredential = useCallback(async (credential: string) => {
-    setAuthError(null);
+   const signOut = useCallback(async () => {
+      try {
+         await fetch("/api/auth/logout", {
+            method: "POST",
+         });
+      } catch {
+         // clear local auth state even if the logout request fails
+      }
 
-    try {
-      const data = await postGoogleIdToken(credential);
-
-      persistSession(data, credential);
-
-      const { accessToken, email, canManageLeases } = readStoredSession();
-
-      setIsSignedIn(Boolean(accessToken));
-      setUserEmail(email);
-      setCanManageLeases(canManageLeases);
-
+      setProfile(null);
+      setAuthError(null);
       setShowAuthModal(false);
-    } catch (err) {
-      const message = err instanceof Error ? err.message : "Sign-in failed";
-      setAuthError(message);
-    }
-  }, []);
+      setReady(true);
+   }, []);
 
-  // -------------------------
-  // Sign out (simplified)
-  // -------------------------
-  const signOut = useCallback(() => {
-    clearStoredSession();
+   useEffect(() => {
+      queueMicrotask(() => {
+         void refreshSession();
+      });
+   }, [refreshSession]);
 
-    setIsSignedIn(false);
-    setUserEmail(null);
-    setCanManageLeases(false);
-  }, []);
+   const value = useMemo<AuthContextValue>(
+      () => ({
+         ready,
+         loading,
+         isSignedIn: Boolean(profile),
+         profile,
+         userEmail: profile?.email ?? null,
+         isHost: isHost(profile),
+         needsOnboarding: profile?.needs_onboarding ?? false,
+         authError,
+         clearAuthError,
+         refreshSession,
+         signInWithGoogleCredential,
+         signOut,
+         showAuthModal,
+         setShowAuthModal,
+      }),
+      [
+         ready,
+         loading,
+         profile,
+         authError,
+         clearAuthError,
+         refreshSession,
+         signInWithGoogleCredential,
+         signOut,
+         showAuthModal,
+      ],
+   );
 
-  // -------------------------
-  // Context
-  // -------------------------
-  const value = useMemo<AuthContextValue>(
-    () => ({
-      ready,
-      isSignedIn,
-      userEmail,
-      isHost: canManageLeases,
-      canManageLeases,
-      authError,
-      clearAuthError,
-
-      signInWithGoogleCredential,
-      signOut,
-
-      showAuthModal,
-      setShowAuthModal,
-    }),
-    [
-      ready,
-      isSignedIn,
-      userEmail,
-      canManageLeases,
-      authError,
-      clearAuthError,
-      signInWithGoogleCredential,
-      signOut,
-      showAuthModal,
-    ]
-  );
-
-  return (
-    <AuthContext.Provider value={value}>
-      {children}
-
-      {showAuthModal && (
-        <AuthModal
-          open={showAuthModal}
-          onClose={() => setShowAuthModal(false)}
-        />
-      )}
-    </AuthContext.Provider>
-  );
+   return (
+      <AuthContext.Provider value={value}>
+         {children}
+         {showAuthModal && (
+            <AuthModal
+               open={showAuthModal}
+               onClose={() => setShowAuthModal(false)}
+            />
+         )}
+      </AuthContext.Provider>
+   );
 }
 
 export function useAuth(): AuthContextValue {
-  const ctx = useContext(AuthContext);
-  if (!ctx) throw new Error("useAuth must be used within AuthProvider");
-  return ctx;
+   const ctx = useContext(AuthContext);
+   if (!ctx) throw new Error("useAuth must be used within AuthProvider");
+   return ctx;
 }
