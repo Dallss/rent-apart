@@ -59,14 +59,24 @@ function buildListingsUrl(
       ? `${baseUrl}?${queryString}`
       : baseUrl;
 }
+const authFetch = async (url: string, options: RequestInit = {}) => {
+   console.log('using authfetch');
+   const res = await fetch(url, {
+     ...options,
+     credentials: "include", // IMPORTANT: sends cookies
+     headers: {
+       ...(options.headers || {}),
+       "Content-Type": "application/json",
+     },
+   });
+ 
+   if (!res.ok) throw new Error("Request failed");
+   return res;
+ };
 
 function useLazyFetch({ api, params }: FetchParams) {
    
    const url = buildListingsUrl(api, params);
-
-   const refetch = ()=>{
-      
-   }
 
    const {
       data,
@@ -88,7 +98,7 @@ function useLazyFetch({ api, params }: FetchParams) {
       initialPageParam: url,
   
       queryFn: async ({ pageParam }) => {
-        const res = await fetch(pageParam);
+        const res = await authFetch(pageParam);
   
         if (!res.ok) {
           throw new Error("Failed to fetch listings");
