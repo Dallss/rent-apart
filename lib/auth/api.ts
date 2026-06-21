@@ -119,6 +119,12 @@ export async function getCurrentSession(): Promise<AuthProfile | null> {
    return data.profile;
 }
 
+export async function logout(): Promise<void> {
+   await fetchApi("/api/auth/logout/", {
+      method: "POST",
+   });
+}
+
 export async function submitOnboarding(
    payload: OnboardingPayload,
 ): Promise<OnboardingResponse> {

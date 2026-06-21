@@ -4,6 +4,7 @@ import AuthModal from "@/modals/AuthModal";
 import {
    getCurrentSession,
    postGoogleIdToken,
+   logout,
    type AuthProfile,
 } from "@/lib/auth";
 import {
@@ -92,9 +93,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
 
    const signOut = useCallback(async () => {
       try {
-         await fetch("/api/auth/logout", {
-            method: "POST",
-         });
+         await logout();
       } catch {
          // clear local auth state even if the logout request fails
       }
