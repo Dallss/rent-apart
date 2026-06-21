@@ -17,7 +17,7 @@ function hasAuthCookie(request: NextRequest): boolean {
    );
 }
 
-export function middleware(request: NextRequest) {
+export function proxy(request: NextRequest) {
    const { pathname } = request.nextUrl;
 
    const requiresAuth = PROTECTED_ROUTES.some(
