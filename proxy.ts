@@ -1,14 +1,6 @@
 import type { NextRequest } from "next/server";
 import { NextResponse } from "next/server";
 
-const AUTH_COOKIE_NAMES = [
-   "sessionid",
-   "csrftoken",
-   "access_token",
-   "refresh_token",
-   "auth",
-];
-
 const PROTECTED_ROUTES = ["/become-a-host", "/manage-listings", "/onboarding"];
 
 function hasAuthCookie(request: NextRequest): boolean {
