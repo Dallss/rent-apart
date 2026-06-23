@@ -2,6 +2,7 @@
 
 import { fetchApi } from "@/lib/auth";
 import { useAuth } from "@/providers/AuthProvider";
+import { useQueryClient } from "@tanstack/react-query";
 import { useRouter } from "next/navigation";
 import { useCallback, useRef, useState } from "react";
 
@@ -177,8 +178,37 @@ function PendingScreen() {
    );
 }
 
+function DemoGrantedScreen() {
+   const router = useRouter();
+
+   return (
+      <div className="flex min-h-screen flex-col items-center justify-center bg-white px-6 text-center">
+         <div className="mb-8 flex h-20 w-20 items-center justify-center rounded-full border border-emerald-500/30 bg-emerald-500/10 text-4xl">
+            🚀
+         </div>
+         <h1
+            className="mb-3 text-3xl font-bold tracking-tight text-foreground"
+            style={{ fontFamily: "'Playfair Display', Georgia, serif" }}
+         >
+            You&apos;re now a host
+         </h1>
+         <p className="mb-8 max-w-sm text-sm text-muted leading-relaxed">
+            Host access has been granted instantly for this demo. Head to your
+            dashboard to start listing properties.
+         </p>
+         <button
+            onClick={() => router.push("/")}
+            className="rounded-full bg-amber-400 px-6 py-2.5 text-sm font-semibold text-black hover:bg-amber-300 transition"
+         >
+            Go to dashboard
+         </button>
+      </div>
+   );
+}
+
 export default function BecomeHostPage() {
    const { ready, isSignedIn, isHost, userEmail } = useAuth();
+   const queryClient = useQueryClient();
    const router = useRouter();
    const [step, setStep] = useState<Step>("form");
    const [form, setForm] = useState<FormState>(EMPTY_FORM);
@@ -187,6 +217,7 @@ export default function BecomeHostPage() {
    >({});
    const [submitting, setSubmitting] = useState(false);
    const [serverError, setServerError] = useState<string | null>(null);
+   const [demoGranted, setDemoGranted] = useState(false);
 
    const set = useCallback(
       <K extends keyof FormState>(key: K, value: FormState[K]) =>
@@ -212,6 +243,30 @@ export default function BecomeHostPage() {
       if (!form.agreedToTerms) e.agreedToTerms = "You must agree to continue";
       setErrors(e);
       return Object.keys(e).length === 0;
+   };
+
+   // Demo: instantly grant host access via the capability endpoint
+   const handleDemoGrant = async () => {
+      setSubmitting(true);
+      setServerError(null);
+      try {
+         const res = await fetchApi("/api/auth/capabilities/leasing/manage/", {
+            method: "POST",
+         });
+         if (!res.ok) {
+            const text = await res.text();
+            throw new Error(text || `Failed (${res.status})`);
+         }
+         // Invalidate the auth/me query so AuthProvider picks up the new role
+         await queryClient.invalidateQueries({ queryKey: ["auth-user"] });
+         setDemoGranted(true);
+      } catch (err) {
+         setServerError(
+            err instanceof Error ? err.message : "Something went wrong",
+         );
+      } finally {
+         setSubmitting(false);
+      }
    };
 
    const handleSubmit = async () => {
@@ -273,27 +328,7 @@ export default function BecomeHostPage() {
       );
    }
 
-   if (isHost) {
-      return (
-         <div className="flex min-h-screen items-center justify-center bg-white">
-            <div className="flex flex-col items-center gap-3 text-center">
-               <span className="text-3xl">🏠</span>
-               <p className="text-sm font-medium text-foreground">
-                  You&apos;re already a host
-               </p>
-               <p className="text-xs text-muted">
-                  Head to your dashboard to manage your properties.
-               </p>
-               <button
-                  onClick={() => router.push("/")}
-                  className="mt-2 rounded-full border border-border px-5 py-2 text-xs font-medium text-foreground hover:bg-card transition"
-               >
-                  Go to dashboard
-               </button>
-            </div>
-         </div>
-      );
-   }
+   if (isHost || demoGranted) return <DemoGrantedScreen />;
 
    if (step === "pending") return <PendingScreen />;
 
@@ -370,135 +405,175 @@ export default function BecomeHostPage() {
                )}
             </div>
 
-            <div className="flex flex-col gap-8">
-               <section className="rounded-2xl border border-border bg-card/40 p-6">
-                  <h2 className="mb-5 text-xs font-bold uppercase tracking-widest text-amber-400">
-                     01 · Personal Information
-                  </h2>
-                  <div className="grid gap-4 sm:grid-cols-2">
-                     <div className="sm:col-span-2">
-                        {field("Full Legal Name", "fullLegalName", {
-                           placeholder: "As it appears on your government ID",
-                        })}
-                     </div>
-                     {field("Date of Birth", "dateOfBirth", { type: "date" })}
-                     {field("Mobile Number", "phoneNumber", {
-                        placeholder: "09171234567",
-                        type: "tel",
-                     })}
-                  </div>
-               </section>
-
-               <section className="rounded-2xl border border-border bg-card/40 p-6">
-                  <h2 className="mb-5 text-xs font-bold uppercase tracking-widest text-amber-400">
-                     02 · Present Address
-                  </h2>
-                  <div className="grid gap-4 sm:grid-cols-2">
-                     <div className="sm:col-span-2">
-                        {field("Street / Barangay", "presentAddress", {
-                           placeholder: "Unit, building, street, barangay",
-                        })}
-                     </div>
-                     {field("City / Municipality", "city", {
-                        placeholder: "Cebu City",
-                     })}
-                     {field("Province", "province", { placeholder: "Cebu" })}
-                     {field("ZIP Code", "zipCode", { placeholder: "6000" })}
-                  </div>
-               </section>
-
-               <section className="rounded-2xl border border-border bg-card/40 p-6">
-                  <h2 className="mb-1 text-xs font-bold uppercase tracking-widest text-amber-400">
-                     03 · Government ID Verification
-                  </h2>
-                  <p className="mb-5 text-xs text-muted">
-                     Required under BSP and DTI guidelines for property lease
-                     agreements in the Philippines.
+            {/* ── Demo banner ── */}
+            <div className="mb-8 flex gap-4 rounded-2xl border border-amber-400/40 bg-amber-400/10 p-5">
+               <span className="mt-0.5 text-xl">🚧</span>
+               <div className="flex-1">
+                  <p className="mb-1 text-sm font-semibold text-foreground">
+                     Host verification isn&apos;t live yet
                   </p>
-                  <div className="grid gap-4 sm:grid-cols-2">
-                     {select("ID Type", "idType", ID_TYPES)}
-                     {field("ID Number", "idNumber", {
-                        placeholder: "e.g. 1234-5678-9012",
-                     })}
-                     <div className="sm:col-span-2">
-                        <label className="mb-1.5 block text-xs font-semibold uppercase tracking-widest text-muted">
-                           Upload ID Photo
-                        </label>
-                        <FileDropzone
-                           file={form.idFile}
-                           onChange={(f) => set("idFile", f)}
-                        />
-                        {errors.idFile && (
-                           <p className="mt-1 text-xs text-red-400">
-                              {errors.idFile}
-                           </p>
-                        )}
-                     </div>
-                  </div>
-               </section>
-
-               <section className="rounded-2xl border border-border bg-card/40 p-6">
-                  <h2 className="mb-5 text-xs font-bold uppercase tracking-widest text-amber-400">
-                     04 · Property Intent
-                  </h2>
-                  <div className="grid gap-4 sm:grid-cols-2">
-                     {select(
-                        "Type of Property",
-                        "propertyType",
-                        PROPERTY_TYPES,
-                     )}
-                     {field("Estimated Units to List", "estimatedUnits", {
-                        type: "number",
-                        min: "1",
-                        placeholder: "1",
-                     })}
-                  </div>
-               </section>
-
-               <div className="rounded-2xl border border-border bg-card/40 p-6">
-                  <label className="flex cursor-pointer items-start gap-3">
-                     <input
-                        type="checkbox"
-                        checked={form.agreedToTerms}
-                        onChange={(e) => set("agreedToTerms", e.target.checked)}
-                        className="mt-0.5 h-4 w-4 accent-amber-400"
-                     />
-                     <span className="text-sm text-muted leading-relaxed">
-                        I confirm that all information provided is accurate and
-                        true. I understand that submitting false documents is a
-                        violation of Philippine law (RA 11032, Civil Code Art.
-                        19–21) and may result in account termination.
-                     </span>
-                  </label>
-                  {errors.agreedToTerms && (
-                     <p className="mt-2 text-xs text-red-400">
-                        {errors.agreedToTerms}
+                  <p className="mb-3 text-xs leading-relaxed text-muted">
+                     For this demo, host access is granted instantly — no ID
+                     review or approval wait needed.
+                  </p>
+                  {serverError && (
+                     <p className="mb-3 rounded-lg border border-red-500/30 bg-red-500/10 px-3 py-2 text-xs text-red-400">
+                        {serverError}
                      </p>
                   )}
-               </div>
-
-               {serverError && (
-                  <p className="rounded-lg border border-red-500/30 bg-red-500/10 px-4 py-3 text-sm text-red-400">
-                     {serverError}
-                  </p>
-               )}
-
-               <div className="flex items-center justify-between gap-4">
                   <button
                      type="button"
-                     onClick={() => router.back()}
-                     className="rounded-full border border-border px-6 py-2.5 text-sm font-medium text-muted hover:text-foreground hover:bg-card transition"
-                  >
-                     Cancel
-                  </button>
-                  <button
-                     type="button"
-                     onClick={handleSubmit}
+                     onClick={handleDemoGrant}
                      disabled={submitting}
-                     className="rounded-full bg-amber-400 px-8 py-2.5 text-sm font-semibold text-black hover:bg-amber-300 disabled:opacity-50 transition"
+                     className="rounded-full bg-amber-400 px-5 py-2 text-xs font-semibold text-black hover:bg-amber-300 disabled:opacity-50 transition"
                   >
-                     {submitting ? "Submitting…" : "Submit application"}
+                     {submitting ? "Processing…" : "Become a host instantly →"}
                   </button>
+               </div>
+            </div>
+
+            {/* ── Blurred form (non-interactive) ── */}
+            <div className="relative select-none">
+               {/* Blur + fade overlay */}
+               <div
+                  className="absolute inset-0 z-10 rounded-2xl"
+                  style={{
+                     backdropFilter: "blur(4px)",
+                     WebkitBackdropFilter: "blur(4px)",
+                     background:
+                        "linear-gradient(to bottom, rgba(255,255,255,0.1) 0%, rgba(255,255,255,0.55) 60%, rgba(255,255,255,0.88) 100%)",
+                  }}
+               />
+
+               <div className="pointer-events-none opacity-60">
+                  <div className="flex flex-col gap-8">
+                     <section className="rounded-2xl border border-border bg-card/40 p-6">
+                        <h2 className="mb-5 text-xs font-bold uppercase tracking-widest text-amber-400">
+                           01 · Personal Information
+                        </h2>
+                        <div className="grid gap-4 sm:grid-cols-2">
+                           <div className="sm:col-span-2">
+                              {field("Full Legal Name", "fullLegalName", {
+                                 placeholder:
+                                    "As it appears on your government ID",
+                              })}
+                           </div>
+                           {field("Date of Birth", "dateOfBirth", {
+                              type: "date",
+                           })}
+                           {field("Mobile Number", "phoneNumber", {
+                              placeholder: "09171234567",
+                              type: "tel",
+                           })}
+                        </div>
+                     </section>
+
+                     <section className="rounded-2xl border border-border bg-card/40 p-6">
+                        <h2 className="mb-5 text-xs font-bold uppercase tracking-widest text-amber-400">
+                           02 · Present Address
+                        </h2>
+                        <div className="grid gap-4 sm:grid-cols-2">
+                           <div className="sm:col-span-2">
+                              {field("Street / Barangay", "presentAddress", {
+                                 placeholder:
+                                    "Unit, building, street, barangay",
+                              })}
+                           </div>
+                           {field("City / Municipality", "city", {
+                              placeholder: "Cebu City",
+                           })}
+                           {field("Province", "province", {
+                              placeholder: "Cebu",
+                           })}
+                           {field("ZIP Code", "zipCode", {
+                              placeholder: "6000",
+                           })}
+                        </div>
+                     </section>
+
+                     <section className="rounded-2xl border border-border bg-card/40 p-6">
+                        <h2 className="mb-1 text-xs font-bold uppercase tracking-widest text-amber-400">
+                           03 · Government ID Verification
+                        </h2>
+                        <p className="mb-5 text-xs text-muted">
+                           Required under BSP and DTI guidelines for property
+                           lease agreements in the Philippines.
+                        </p>
+                        <div className="grid gap-4 sm:grid-cols-2">
+                           {select("ID Type", "idType", ID_TYPES)}
+                           {field("ID Number", "idNumber", {
+                              placeholder: "e.g. 1234-5678-9012",
+                           })}
+                           <div className="sm:col-span-2">
+                              <label className="mb-1.5 block text-xs font-semibold uppercase tracking-widest text-muted">
+                                 Upload ID Photo
+                              </label>
+                              <FileDropzone
+                                 file={form.idFile}
+                                 onChange={(f) => set("idFile", f)}
+                              />
+                           </div>
+                        </div>
+                     </section>
+
+                     <section className="rounded-2xl border border-border bg-card/40 p-6">
+                        <h2 className="mb-5 text-xs font-bold uppercase tracking-widest text-amber-400">
+                           04 · Property Intent
+                        </h2>
+                        <div className="grid gap-4 sm:grid-cols-2">
+                           {select(
+                              "Type of Property",
+                              "propertyType",
+                              PROPERTY_TYPES,
+                           )}
+                           {field(
+                              "Estimated Units to List",
+                              "estimatedUnits",
+                              {
+                                 type: "number",
+                                 min: "1",
+                                 placeholder: "1",
+                              },
+                           )}
+                        </div>
+                     </section>
+
+                     <div className="rounded-2xl border border-border bg-card/40 p-6">
+                        <label className="flex cursor-pointer items-start gap-3">
+                           <input
+                              type="checkbox"
+                              checked={form.agreedToTerms}
+                              onChange={(e) =>
+                                 set("agreedToTerms", e.target.checked)
+                              }
+                              className="mt-0.5 h-4 w-4 accent-amber-400"
+                           />
+                           <span className="text-sm text-muted leading-relaxed">
+                              I confirm that all information provided is
+                              accurate and true. I understand that submitting
+                              false documents is a violation of Philippine law
+                              (RA 11032, Civil Code Art. 19–21) and may result
+                              in account termination.
+                           </span>
+                        </label>
+                     </div>
+
+                     <div className="flex items-center justify-between gap-4">
+                        <button
+                           type="button"
+                           className="rounded-full border border-border px-6 py-2.5 text-sm font-medium text-muted"
+                        >
+                           Cancel
+                        </button>
+                        <button
+                           type="button"
+                           disabled
+                           className="rounded-full bg-amber-400 px-8 py-2.5 text-sm font-semibold text-black opacity-50"
+                        >
+                           Submit application
+                        </button>
+                     </div>
+                  </div>
                </div>
             </div>
          </div>

@@ -12,9 +12,7 @@ const AUTH_COOKIE_NAMES = [
 const PROTECTED_ROUTES = ["/become-a-host", "/manage-listings", "/onboarding"];
 
 function hasAuthCookie(request: NextRequest): boolean {
-   return AUTH_COOKIE_NAMES.some((name) =>
-      Boolean(request.cookies.get(name)?.value),
-   );
+   return Boolean(request.cookies.get("access_token")?.value);
 }
 
 export function proxy(request: NextRequest) {
@@ -24,13 +22,7 @@ export function proxy(request: NextRequest) {
       (route) => pathname === route || pathname.startsWith(`${route}/`),
    );
 
-   if (!requiresAuth) {
-      return NextResponse.next();
-   }
-
-   if (hasAuthCookie(request)) {
-      return NextResponse.next();
-   }
+   if (!requiresAuth || hasAuthCookie(request)) return NextResponse.next();
 
    const url = request.nextUrl.clone();
    url.pathname = "/";
