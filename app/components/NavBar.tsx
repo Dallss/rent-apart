@@ -121,7 +121,7 @@ export function NavBar() {
 
    return (
       <div
-         className={`sticky top-0 z-20 flex items-center justify-between px-20 py-4 transition-all duration-300 ${
+         className={`sticky top-0 z-20 flex items-center justify-between px-[3vw] py-4 transition-all duration-300 ${
             pathname === "/"
                ? isScrolled
                   ? "bg-black/40 backdrop-blur-md"
