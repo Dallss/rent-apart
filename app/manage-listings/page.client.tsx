@@ -486,9 +486,12 @@ function ListingCard({ listing }: { listing: MyListing }) {
                >
                   View
                </Link>
-               <button className="flex-1 py-1.5 text-xs font-medium text-gray-700 border border-gray-200 rounded-lg hover:bg-gray-50 transition-colors">
+               <Link
+                  href={`/edit-listing/${listing.id}`}
+                  className="flex-1 py-1.5 text-center text-xs font-medium text-gray-700 border border-gray-200 rounded-lg hover:bg-gray-50 transition-colors"
+               >
                   Edit
-               </button>
+               </Link>
             </div>
          </div>
       </article>
