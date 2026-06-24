@@ -4,105 +4,103 @@ import useRuntimeConfig from "@/hooks/useRuntimeConfig";
 import Image from "next/image";
 import Link from "next/link";
 
-
 function NeighborhoodCard({
-  title,
-  image,
-  href,
+   title,
+   image,
+   href,
 }: {
-  title: string;
-  image: string;
-  href: string;
+   title: string;
+   image: string;
+   href: string;
 }) {
-  return (
-    <Link
-      href={href}
-      className="flex-1 h-28 rounded-xl overflow-hidden relative flex items-center justify-center text-center shadow-sm hover:shadow-md transition-transform duration-300 hover:scale-105"
-     >
-      <Image
-        src={image}
-        alt={title}
-        fill
-        sizes="(max-width: 768px) 100vw, 33vw"
-        className="object-cover"
-      />
-      <div className="absolute inset-0 bg-black/40" />
-      <div className="relative text-white font-semibold text-lg">
-        {title}
-      </div>
-    </Link>
-  );
+   return (
+      <Link
+         href={href}
+         className="flex-1 h-28 rounded-xl overflow-hidden relative flex items-center justify-center text-center shadow-sm hover:shadow-md transition-transform duration-300 hover:scale-105"
+      >
+         <Image
+            src={image}
+            alt={title}
+            fill
+            sizes="(max-width: 768px) 100vw, 33vw"
+            className="object-cover"
+         />
+         <div className="absolute inset-0 bg-black/40" />
+         <div className="relative text-white font-semibold text-lg">
+            {title}
+         </div>
+      </Link>
+   );
 }
 
 export default function Listings() {
-  const { config } = useRuntimeConfig();
+   const { config } = useRuntimeConfig();
 
-  return (
-    <div className="flex min-h-full flex-col w-full max-w-screen-2xl mx-auto">
-      <main className="mx-auto w-full flex-1 px-4 py-8 border">
+   return (
+      <div className="flex min-h-full flex-col w-full max-w-screen-2xl mx-auto">
+         <main className="mx-auto w-full flex-1 px-4 py-8 border">
+            {config && (
+               <ListingCollection
+                  title="Featured"
+                  api={`${config.apiUrl}/api/listings/?is_unfinished=false&mine=false`}
+               />
+            )}
 
-        {config && (
-          <ListingCollection
-            title="Featured"
-            api={`${config.apiUrl}/api/listings/`}
-          />
-        )}
+            <div className="relative m-9 mt-8 mb-9 rounded-2xl shadow-lg border border-white/10 overflow-hidden">
+               {/* background layer */}
 
-        <div className="relative m-9 mt-8 mb-9 rounded-2xl shadow-lg border border-white/10 overflow-hidden">
-          {/* background layer */}
-    
-          <div className="p-0 pt-5  bg-white text-zinc-600 ">
-            <h2 className="text-3xl font-bold tracking-tight text-center mb-[-15]">
-              Explore Neighborhoods
-            </h2>
+               <div className="p-0 pt-5  bg-white text-zinc-600 ">
+                  <h2 className="text-3xl font-bold tracking-tight text-center mb-[-15]">
+                     Explore Neighborhoods
+                  </h2>
 
-              <div className="flex gap-4 w-full mt-4 p-5">
-                <NeighborhoodCard
-                  title="Metro Cebu"
-                  image="https://images.unsplash.com/photo-1500375592092-40eb2168fd21?w=800&h=600&fit=crop"
-                  href="/listings?place=Cebu+City%2C+Cebu%2C+Philippines&city_google_place_id=ChIJ_S3NjSWZqTMRBzXT2wwDNEw"
-                />
+                  <div className="flex gap-4 w-full mt-4 p-5">
+                     <NeighborhoodCard
+                        title="Metro Cebu"
+                        image="https://images.unsplash.com/photo-1500375592092-40eb2168fd21?w=800&h=600&fit=crop"
+                        href="/listings?place=Cebu+City%2C+Cebu%2C+Philippines&city_google_place_id=ChIJ_S3NjSWZqTMRBzXT2wwDNEw"
+                     />
 
-                <NeighborhoodCard
-                  title="Mandaue"
-                  image="https://images.unsplash.com/photo-1500530855697-b586d89ba3ee?w=800&h=600&fit=crop"
-                  href="/listings?place=Mandaue+City%2C+Cebu%2C+Philippines&city_google_place_id=ChIJ_e4MaImYqTMRcqXd9aER-ak"
-                />
+                     <NeighborhoodCard
+                        title="Mandaue"
+                        image="https://images.unsplash.com/photo-1500530855697-b586d89ba3ee?w=800&h=600&fit=crop"
+                        href="/listings?place=Mandaue+City%2C+Cebu%2C+Philippines&city_google_place_id=ChIJ_e4MaImYqTMRcqXd9aER-ak"
+                     />
 
-                <NeighborhoodCard
-                  title="Lapu-Lapu"
-                  image="https://images.unsplash.com/photo-1500375592092-40eb2168fd21?w=800&h=600&fit=crop"
-                  href="/listings?place=Lapu-lapu+City%2C+Cebu%2C+Philippines&city_google_place_id=ChIJG8Rz2f6ZqTMRLC6gsQOv6Ro"
-                />
+                     <NeighborhoodCard
+                        title="Lapu-Lapu"
+                        image="https://images.unsplash.com/photo-1500375592092-40eb2168fd21?w=800&h=600&fit=crop"
+                        href="/listings?place=Lapu-lapu+City%2C+Cebu%2C+Philippines&city_google_place_id=ChIJG8Rz2f6ZqTMRLC6gsQOv6Ro"
+                     />
 
-                <NeighborhoodCard
-                  title="Talisay"
-                  image="https://images.unsplash.com/photo-1469474968028-56623f02e42e?w=800&h=600&fit=crop"
-                  href="/listings?place=Talisay%2C+Cebu%2C+Philippines&city_google_place_id=ChIJ7TrL8K2dqTMRAGpBmHrrZIQ"
-                />
+                     <NeighborhoodCard
+                        title="Talisay"
+                        image="https://images.unsplash.com/photo-1469474968028-56623f02e42e?w=800&h=600&fit=crop"
+                        href="/listings?place=Talisay%2C+Cebu%2C+Philippines&city_google_place_id=ChIJ7TrL8K2dqTMRAGpBmHrrZIQ"
+                     />
 
-                <NeighborhoodCard
-                  title="Consolacion"
-                  image="https://images.unsplash.com/photo-1501785888041-af3ef285b470?w=800&h=600&fit=crop"
-                  href="/listings?place=Consolacion%2C+Cebu%2C+Philippines&city_google_place_id=ChIJbQWNkryiqTMRiriPoPQqerk"
-                />
+                     <NeighborhoodCard
+                        title="Consolacion"
+                        image="https://images.unsplash.com/photo-1501785888041-af3ef285b470?w=800&h=600&fit=crop"
+                        href="/listings?place=Consolacion%2C+Cebu%2C+Philippines&city_google_place_id=ChIJbQWNkryiqTMRiriPoPQqerk"
+                     />
+                  </div>
+               </div>
             </div>
-          </div>
-        </div>
-        {config && (
-          <ListingCollection
-            title="Budget Friendly"
-            api={`${config.apiUrl}/api/listings/?max_rent=25000`}
-          />
-        )}
+            {config && (
+               <ListingCollection
+                  title="Budget Friendly"
+                  api={`${config.apiUrl}/api/listings/?max_rent=25000&is_unfinished=false&mine=false`}
+               />
+            )}
 
-        {config && (
-          <ListingCollection
-            title="Studio"
-            api={`${config.apiUrl}/api/listings/?bedrooms=0`}
-          />
-        )}
-      </main>
-    </div>
-  );
+            {config && (
+               <ListingCollection
+                  title="Studio"
+                  api={`${config.apiUrl}/api/listings/?bedrooms=0&is_unfinished=false&mine=false`}
+               />
+            )}
+         </main>
+      </div>
+   );
 }

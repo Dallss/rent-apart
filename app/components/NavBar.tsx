@@ -7,6 +7,7 @@ import { useCallback, useEffect, useRef, useState } from "react";
 import Link from "next/link";
 import { usePathname, useRouter } from "next/navigation";
 import Image from "next/image";
+import { Heart } from "lucide-react";
 
 function GoogleSignInSlot({ disabled }: { disabled: boolean }) {
    const { isSignedIn, signInWithGoogleCredential } = useAuth();
@@ -168,6 +169,16 @@ export function NavBar() {
                      Complete profile
                   </Link>
                )}
+
+            {ready && isSignedIn && !needsOnboarding && (
+               <Link
+                  href="/liked-listings"
+                  className="flex items-center gap-1.5 rounded-full px-4 py-2 text-sm font-medium text-white transition hover:bg-white/10"
+               >
+                  <Heart className="h-4 w-4" />
+                  Saved
+               </Link>
+            )}
 
             {ready && isSignedIn && !needsOnboarding && isHost && (
                <Link

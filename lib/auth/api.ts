@@ -15,6 +15,7 @@ export type AuthProfile = {
    avatar_url: string;
    birthday: string | null;
    needs_onboarding: boolean;
+   liked_listings: number[];
 };
 
 export type GoogleAuthUser = {
@@ -186,6 +187,20 @@ export async function logout(): Promise<void> {
    await fetchApi("/api/auth/logout/", {
       method: "POST",
    });
+}
+
+export async function likeListingApi(listingId: number): Promise<void> {
+   const res = await fetchApi(`/api/listings/${listingId}/like/`, {
+      method: "POST",
+   });
+   if (!res.ok) throw new Error(`Failed to like listing (${res.status})`);
+}
+
+export async function unlikeListingApi(listingId: number): Promise<void> {
+   const res = await fetchApi(`/api/listings/${listingId}/like/`, {
+      method: "DELETE",
+   });
+   if (!res.ok) throw new Error(`Failed to unlike listing (${res.status})`);
 }
 
 export async function submitOnboarding(
