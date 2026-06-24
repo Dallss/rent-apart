@@ -804,10 +804,45 @@ export default function AddListingClientPage() {
          }
 
          const listing = await res.json();
-         const listingId = listing.id as number;
+         // The create endpoint returns the ListingWrite serializer which omits `id`.
+         // Attempt to read it from the response first; if absent, fetch the most
+         // recently created listing for this user to retrieve its id.
+         let listingId = listing.id as number | undefined;
 
-         // 3. Upload each additional photo to Cloudinary then POST to listing images
+         if (!listingId) {
+            const myRes = await fetchApi(
+               "/api/listings/?mine=true&ordering=-id&limit=1",
+            );
+            if (myRes.ok) {
+               const myData = await myRes.json();
+               const results: { id: number }[] = Array.isArray(myData)
+                  ? myData
+                  : (myData.results ?? []);
+               listingId = results[0]?.id;
+            }
+         }
+
+         // 3. Register the hero image as a listing image too
+         await fetchApi(`/api/listings/${listingId}/images/`, {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({ image_url: heroUrl }),
+         });
+
+         // 4. Upload each additional photo to Cloudinary then POST to listing images
          const photos = form.additional_images;
+         console.log(
+            `[images] starting upload for ${photos.length} photo(s), listingId=${listingId}`,
+         );
+
+         if (!listingId) {
+            console.warn(
+               "[images] could not determine listingId — skipping photo upload",
+            );
+            router.push("/manage-listings");
+            return;
+         }
+
          for (let i = 0; i < photos.length; i++) {
             setUploadProgress({
                message: `Uploading photo ${i + 1} of ${photos.length}…`,
@@ -815,7 +850,19 @@ export default function AddListingClientPage() {
                total: photos.length,
             });
             try {
+               console.log(
+                  `[images] [${i + 1}/${photos.length}] uploading to Cloudinary…`,
+                  photos[i].file,
+               );
                const imageUrl = await uploadToCloudinary(photos[i].file);
+               console.log(
+                  `[images] [${i + 1}/${photos.length}] Cloudinary OK →`,
+                  imageUrl,
+               );
+
+               console.log(
+                  `[images] [${i + 1}/${photos.length}] POSTing to /api/listings/${listingId}/images/`,
+               );
                await fetchApi(`/api/listings/${listingId}/images/`, {
                   method: "POST",
                   headers: { "Content-Type": "application/json" },
@@ -826,10 +873,16 @@ export default function AddListingClientPage() {
                         : {}),
                   }),
                });
-            } catch {
-               // Non-fatal — listing already created, continue with remaining photos
+               console.log(`[images] [${i + 1}/${photos.length}] POST OK`);
+            } catch (err) {
+               console.error(
+                  `[images] [${i + 1}/${photos.length}] FAILED`,
+                  err,
+               );
             }
          }
+
+         console.log("[images] loop done");
 
          router.push("/manage-listings");
       } catch (err) {
