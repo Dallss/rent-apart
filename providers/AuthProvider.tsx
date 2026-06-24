@@ -5,6 +5,8 @@ import {
    getCurrentSession,
    postGoogleIdToken,
    logout,
+   likeListingApi,
+   unlikeListingApi,
    type AuthProfile,
 } from "@/lib/auth";
 import {
@@ -28,6 +30,8 @@ type AuthContextValue = {
    userEmail: string | null;
    isHost: boolean;
    needsOnboarding: boolean;
+   likedListings: number[];
+   toggleLike: (listingId: number) => Promise<void>;
    authError: string | null;
    clearAuthError: () => void;
    refreshSession: () => Promise<void>;
@@ -91,6 +95,39 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
       [],
    );
 
+   const toggleLike = useCallback(
+      async (listingId: number) => {
+         if (!profile) return;
+         const alreadyLiked = (profile.liked_listings ?? []).includes(
+            listingId,
+         );
+
+         // Optimistic update
+         setProfile((prev) => {
+            if (!prev) return prev;
+            const current = prev.liked_listings ?? [];
+            return {
+               ...prev,
+               liked_listings: alreadyLiked
+                  ? current.filter((id) => id !== listingId)
+                  : [...current, listingId],
+            };
+         });
+
+         try {
+            if (alreadyLiked) {
+               await unlikeListingApi(listingId);
+            } else {
+               await likeListingApi(listingId);
+            }
+         } catch {
+            // Revert by re-syncing with server
+            void refreshSession();
+         }
+      },
+      [profile, refreshSession],
+   );
+
    const signOut = useCallback(async () => {
       try {
          await logout();
@@ -119,6 +156,8 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
          userEmail: profile?.email ?? null,
          isHost: isHost(profile),
          needsOnboarding: profile?.needs_onboarding ?? false,
+         likedListings: profile?.liked_listings ?? [],
+         toggleLike,
          authError,
          clearAuthError,
          refreshSession,
@@ -131,6 +170,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
          ready,
          loading,
          profile,
+         toggleLike,
          authError,
          clearAuthError,
          refreshSession,

@@ -23,6 +23,10 @@ const nextConfig: NextConfig = {
       remotePatterns: [
          {
             protocol: "https",
+            hostname: "encrypted-tbn0.gstatic.com",
+         },
+         {
+            protocol: "https",
             hostname: "images.unsplash.com",
          },
          {
@@ -40,6 +44,11 @@ const nextConfig: NextConfig = {
             hostname: "localhost",
             port: "8000",
             pathname: "/media/**",
+         },
+
+         {
+            protocol: "https",
+            hostname: "res.cloudinary.com",
          },
       ],
    },
