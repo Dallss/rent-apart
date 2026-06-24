@@ -18,6 +18,7 @@ export interface Listing {
    title: string;
    description: string;
    landlord: string;
+   is_unfinished: boolean;
    country: string;
    city: string;
    neighborhood: string;

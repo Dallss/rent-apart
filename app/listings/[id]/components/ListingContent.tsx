@@ -300,10 +300,53 @@ export default function ListingContent({
    const [uploadProgress, setUploadProgress] = useState<UploadProgress>(null);
    const [photoError, setPhotoError] = useState<string | null>(null);
 
+   const [publishing, setPublishing] = useState(false);
+   const [deleting, setDeleting] = useState(false);
+
    const monthlyRent = parseFloat(listing.monthly_rent);
    const imageCount = listing.images.length;
    const needsMore = Math.max(0, 5 - imageCount);
    const isReady = imageCount >= 5;
+   const isPublished = !listing.is_unfinished;
+
+   // Sets is_unfinished: false (used by the status banner)
+   async function handlePublish() {
+      setPublishing(true);
+      try {
+         await patchListing({ is_unfinished: false });
+      } finally {
+         setPublishing(false);
+      }
+   }
+
+   // Toggles publish status (used by the price-card button)
+   async function handlePublishToggle() {
+      setPublishing(true);
+      try {
+         await patchListing({ is_unfinished: isPublished }); // published → unpublish; draft → publish
+      } finally {
+         setPublishing(false);
+      }
+   }
+
+   async function handleDelete() {
+      if (!window.confirm("Delete this listing? This cannot be undone."))
+         return;
+      setDeleting(true);
+      try {
+         const res = await fetchApi(`/api/listings/${listing.id}/`, {
+            method: "DELETE",
+         });
+         if (res.ok || res.status === 204) {
+            router.push("/manage-listings");
+         } else {
+            throw new Error(`Delete failed (${res.status})`);
+         }
+      } catch (e) {
+         alert(e instanceof Error ? e.message : "Failed to delete listing");
+         setDeleting(false);
+      }
+   }
 
    // ── Shared patch helper ────────────────────────────────
 
@@ -420,168 +463,54 @@ export default function ListingContent({
             </div>
          </section>
 
-         {/* OWNER TOOLBAR */}
-         {isOwner && (
-            <div className="mb-8">
-               <div className="flex items-center gap-3 rounded-xl border border-dashed border-gray-300 bg-gray-50 px-4 py-3">
-                  <p className="flex-1 text-xs font-semibold text-gray-500">
-                     Your listing
-                  </p>
-                  <button
-                     type="button"
-                     onClick={() => setShowPhotos((v) => !v)}
-                     className={`rounded-lg border px-3 py-1.5 text-xs font-medium transition-colors ${
-                        showPhotos
-                           ? "border-gray-900 bg-gray-900 text-white"
-                           : "border-gray-200 bg-white text-gray-700 hover:bg-gray-50"
-                     }`}
-                  >
-                     Add photos
-                  </button>
-               </div>
-
-               {/* Photos upload panel */}
-               {showPhotos && (
-                  <div className="mt-3 rounded-2xl border border-gray-200 bg-white p-6 shadow-sm space-y-5">
-                     <label className="flex cursor-pointer flex-col items-center justify-center gap-2 rounded-lg border-2 border-dashed border-gray-200 bg-gray-50 py-7 text-sm transition-colors hover:bg-gray-100">
-                        <span className="text-3xl">🖼️</span>
-                        <span className="font-medium text-gray-500">
-                           Click to add photos
-                        </span>
-                        <span className="text-xs text-gray-400">
-                           Select multiple at once
-                        </span>
-                        <input
-                           type="file"
-                           accept="image/*"
-                           multiple
-                           className="hidden"
-                           onChange={(e) => addPendingImages(e.target.files)}
-                        />
-                     </label>
-
-                     {pendingImages.length > 0 && (
-                        <div>
-                           <p className="mb-3 text-xs font-semibold uppercase tracking-wide text-gray-400">
-                              {pendingImages.length} photo
-                              {pendingImages.length !== 1 ? "s" : ""} selected
-                           </p>
-                           <div className="grid grid-cols-2 gap-3 sm:grid-cols-3">
-                              {pendingImages.map((img, i) => (
-                                 <div key={i} className="flex flex-col gap-1.5">
-                                    <div className="relative group aspect-video overflow-hidden rounded-lg bg-gray-100">
-                                       <img
-                                          src={img.preview}
-                                          alt={`Photo ${i + 1}`}
-                                          className="h-full w-full object-cover"
-                                       />
-                                       <button
-                                          type="button"
-                                          onClick={() => removePending(i)}
-                                          className="absolute right-1.5 top-1.5 flex h-6 w-6 items-center justify-center rounded-full bg-black/60 text-white text-xs opacity-0 transition-opacity group-hover:opacity-100 hover:bg-red-600"
-                                       >
-                                          ✕
-                                       </button>
-                                    </div>
-                                    <input
-                                       className="w-full rounded-md border border-gray-200 px-2.5 py-1.5 text-xs text-gray-700 placeholder-gray-400 focus:border-gray-400 focus:outline-none"
-                                       placeholder="Caption (optional)"
-                                       value={img.caption}
-                                       onChange={(e) =>
-                                          updateCaption(i, e.target.value)
-                                       }
-                                    />
-                                 </div>
-                              ))}
-                           </div>
-                        </div>
-                     )}
-
-                     {uploadProgress && (
-                        <div className="space-y-2">
-                           <div className="flex items-center justify-between text-xs text-gray-500">
-                              <span>{uploadProgress.message}</span>
-                              <span>
-                                 {uploadProgress.current}/{uploadProgress.total}
-                              </span>
-                           </div>
-                           <div className="h-1.5 w-full overflow-hidden rounded-full bg-gray-100">
-                              <div
-                                 className="h-full rounded-full bg-gray-900 transition-all duration-300"
-                                 style={{
-                                    width: `${Math.round((uploadProgress.current / uploadProgress.total) * 100)}%`,
-                                 }}
-                              />
-                           </div>
-                        </div>
-                     )}
-
-                     {photoError && (
-                        <div className="rounded-lg border border-red-100 bg-red-50 px-4 py-3 text-sm text-red-600">
-                           {photoError}
-                        </div>
-                     )}
-
-                     <div className="flex gap-3">
-                        <button
-                           type="button"
-                           onClick={() => {
-                              setShowPhotos(false);
-                              setPendingImages([]);
-                           }}
-                           disabled={uploading}
-                           className="flex-1 rounded-xl border border-gray-200 py-2.5 text-sm font-medium text-gray-500 hover:bg-gray-50 transition-colors disabled:opacity-50"
-                        >
-                           Cancel
-                        </button>
-                        {pendingImages.length > 0 && (
-                           <button
-                              type="button"
-                              onClick={handlePhotoUpload}
-                              disabled={uploading}
-                              className="flex-1 rounded-xl bg-gray-900 py-2.5 text-sm font-medium text-white hover:bg-gray-700 transition-colors disabled:opacity-60"
-                           >
-                              {uploading
-                                 ? "Uploading…"
-                                 : `Upload ${pendingImages.length} photo${pendingImages.length !== 1 ? "s" : ""}`}
-                           </button>
-                        )}
-                     </div>
-                  </div>
-               )}
-            </div>
-         )}
-
          {/* IMAGES */}
          <section className="overflow-hidden rounded-3xl mb-6">
-            <ListingImages images={listing.images} />
+            <ListingImages
+               images={listing.images}
+               isOwner={isOwner}
+               listingId={listing.id}
+            />
          </section>
 
          {/* OWNER PUBLISH STATUS — below images */}
          {isOwner && (
             <div
                className={`mb-10 flex items-center gap-3 rounded-xl px-4 py-3 ${
-                  isReady
+                  isPublished
                      ? "border border-green-200 bg-green-50"
-                     : "border border-amber-200 bg-amber-50"
+                     : isReady
+                       ? "border border-amber-200 bg-amber-50"
+                       : "border border-amber-100 bg-amber-50"
                }`}
             >
-               <span
-                  className={`text-lg ${
-                     isReady ? "text-green-500" : "text-amber-500"
-                  }`}
-               >
-                  {isReady ? "✓" : "📷"}
-               </span>
-               <p
-                  className={`text-sm font-medium ${
-                     isReady ? "text-green-800" : "text-amber-800"
-                  }`}
-               >
-                  {isReady
-                     ? "Your listing is published"
-                     : `Add ${needsMore} more photo${needsMore !== 1 ? "s" : ""} to publish this listing`}
-               </p>
+               <span className="text-lg">{isPublished ? "✓" : "📷"}</span>
+               <div className="flex-1 min-w-0">
+                  {isPublished ? (
+                     <p className="text-sm font-medium text-green-800">
+                        Published — visible to renters
+                     </p>
+                  ) : isReady ? (
+                     <p className="text-sm font-medium text-amber-800">
+                        Ready to publish · {imageCount} photo
+                        {imageCount !== 1 ? "s" : ""}
+                     </p>
+                  ) : (
+                     <p className="text-sm font-medium text-amber-800">
+                        {imageCount}/{5} photos — add {needsMore} more to
+                        publish
+                     </p>
+                  )}
+               </div>
+               {!isPublished && isReady && (
+                  <button
+                     type="button"
+                     onClick={handlePublish}
+                     disabled={publishing}
+                     className="shrink-0 rounded-lg bg-gray-900 px-4 py-1.5 text-xs font-medium text-white hover:bg-gray-700 disabled:opacity-50 transition-colors"
+                  >
+                     {publishing ? "Publishing…" : "Publish"}
+                  </button>
+               )}
             </div>
          )}
 
@@ -760,6 +689,48 @@ export default function ListingContent({
                            </button>
                         </div>
                      )}
+
+                     {/* Owner action buttons */}
+                     <div className="mt-5 pt-5 border-t border-border space-y-2">
+                        {/* Publish toggle */}
+                        <button
+                           type="button"
+                           onClick={handlePublishToggle}
+                           disabled={
+                              publishing ||
+                              deleting ||
+                              (!isPublished && !isReady)
+                           }
+                           title={
+                              !isPublished && !isReady
+                                 ? `Add ${needsMore} more photo${needsMore !== 1 ? "s" : ""} to publish`
+                                 : undefined
+                           }
+                           className={`w-full rounded-xl py-2.5 text-sm font-medium transition-colors disabled:opacity-50 ${
+                              isPublished
+                                 ? "border border-gray-200 text-gray-600 hover:bg-gray-50"
+                                 : "bg-gray-900 text-white hover:bg-gray-700"
+                           }`}
+                        >
+                           {publishing
+                              ? "Saving…"
+                              : isPublished
+                                ? "Unpublish"
+                                : !isReady
+                                  ? `Publish (need ${needsMore} more photo${needsMore !== 1 ? "s" : ""})`
+                                  : "Publish"}
+                        </button>
+
+                        {/* Delete */}
+                        <button
+                           type="button"
+                           onClick={handleDelete}
+                           disabled={deleting || publishing}
+                           className="w-full rounded-xl border border-red-200 py-2.5 text-sm font-medium text-red-500 hover:bg-red-50 transition-colors disabled:opacity-50"
+                        >
+                           {deleting ? "Deleting…" : "Delete listing"}
+                        </button>
+                     </div>
                   </div>
                ) : (
                   /* Non-owner price card — full */

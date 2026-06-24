@@ -740,7 +740,7 @@ export default function AddListingClientPage() {
 
    // ── Submit ─────────────────────────────────────────────────────
 
-   async function handleSubmit() {
+   async function handleSubmit(shouldPublish: boolean = false) {
       if (!validateStep2()) {
          setStep(2);
          return;
@@ -884,6 +884,15 @@ export default function AddListingClientPage() {
 
          console.log("[images] loop done");
 
+         // Mark as published if requested and we have the listing id
+         if (shouldPublish && listingId) {
+            await fetchApi(`/api/listings/${listingId}/`, {
+               method: "PATCH",
+               headers: { "Content-Type": "application/json" },
+               body: JSON.stringify({ is_unfinished: false }),
+            });
+         }
+
          router.push("/manage-listings");
       } catch (err) {
          setErrors({
@@ -960,6 +969,46 @@ export default function AddListingClientPage() {
                   </div>
                )}
 
+               {/* Photo count — step 3 only */}
+               {step === 3 &&
+                  (() => {
+                     const totalPhotos =
+                        (form.hero_image ? 1 : 0) +
+                        form.additional_images.length;
+                     const needed = Math.max(0, 5 - totalPhotos);
+                     const pct = Math.min(
+                        100,
+                        Math.round((totalPhotos / 5) * 100),
+                     );
+                     return (
+                        <div className="mt-4 rounded-lg border border-gray-100 bg-gray-50 px-4 py-3 space-y-2">
+                           <div className="flex items-center justify-between text-xs">
+                              <span className="text-gray-500">
+                                 {totalPhotos} photo
+                                 {totalPhotos !== 1 ? "s" : ""} — 1 cover
+                                 {form.additional_images.length > 0 &&
+                                    ` + ${form.additional_images.length} more`}
+                              </span>
+                              {totalPhotos >= 5 ? (
+                                 <span className="font-medium text-green-600">
+                                    ✓ Ready to publish
+                                 </span>
+                              ) : (
+                                 <span className="font-medium text-amber-600">
+                                    {needed} more to publish
+                                 </span>
+                              )}
+                           </div>
+                           <div className="h-1 w-full overflow-hidden rounded-full bg-gray-200">
+                              <div
+                                 className={`h-full rounded-full transition-all ${totalPhotos >= 5 ? "bg-green-500" : "bg-gray-400"}`}
+                                 style={{ width: `${pct}%` }}
+                              />
+                           </div>
+                        </div>
+                     );
+                  })()}
+
                {/* Actions */}
                <div className="mt-6 flex gap-3">
                   {step === 1 ? (
@@ -990,14 +1039,31 @@ export default function AddListingClientPage() {
                         Next
                      </button>
                   ) : (
-                     <button
-                        type="button"
-                        onClick={handleSubmit}
-                        disabled={submitting}
-                        className="flex-1 rounded-xl bg-gray-900 py-2.5 text-sm font-medium text-white hover:bg-gray-700 transition-colors disabled:opacity-60"
-                     >
-                        {submitting ? "Publishing…" : "Publish listing"}
-                     </button>
+                     (() => {
+                        const totalPhotos =
+                           (form.hero_image ? 1 : 0) +
+                           form.additional_images.length;
+                        const canPublish = totalPhotos >= 5;
+                        return canPublish ? (
+                           <button
+                              type="button"
+                              onClick={() => handleSubmit(true)}
+                              disabled={submitting}
+                              className="flex-1 rounded-xl bg-gray-900 py-2.5 text-sm font-medium text-white hover:bg-gray-700 transition-colors disabled:opacity-60"
+                           >
+                              {submitting ? "Publishing…" : "Publish listing"}
+                           </button>
+                        ) : (
+                           <button
+                              type="button"
+                              onClick={() => handleSubmit(false)}
+                              disabled={submitting}
+                              className="flex-1 rounded-xl border border-gray-200 py-2.5 text-sm font-medium text-gray-500 hover:bg-gray-50 transition-colors disabled:opacity-50"
+                           >
+                              {submitting ? "Saving…" : "Save as draft"}
+                           </button>
+                        );
+                     })()
                   )}
                </div>
             </div>

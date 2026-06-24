@@ -26,6 +26,7 @@ type MyListing = {
    city: string;
    bedrooms: number;
    rating: string | null;
+   is_unfinished?: boolean;
 };
 
 // ── Calendar constants ────────────────────────────────────
@@ -464,7 +465,18 @@ function ListingCard({ listing }: { listing: MyListing }) {
                </span>
             </div>
 
-            <p className="text-xs text-gray-500 mb-3">{listing.city}</p>
+            <div className="flex items-center gap-2 mb-3">
+               <p className="text-xs text-gray-500">{listing.city}</p>
+               {listing.is_unfinished !== false ? (
+                  <span className="rounded-full bg-amber-50 border border-amber-200 px-2 py-0.5 text-xs font-medium text-amber-700">
+                     Draft
+                  </span>
+               ) : (
+                  <span className="rounded-full bg-green-50 border border-green-200 px-2 py-0.5 text-xs font-medium text-green-700">
+                     Published
+                  </span>
+               )}
+            </div>
 
             <div className="flex items-center justify-between text-xs text-gray-500">
                <span>
@@ -479,18 +491,12 @@ function ListingCard({ listing }: { listing: MyListing }) {
                </span>
             </div>
 
-            <div className="mt-3 flex gap-2">
+            <div className="mt-3">
                <Link
                   href={`/listings/${listing.id}`}
-                  className="flex-1 py-1.5 text-center text-xs font-medium text-gray-700 border border-gray-200 rounded-lg hover:bg-gray-50 transition-colors"
+                  className="block w-full py-1.5 text-center text-xs font-medium text-gray-700 border border-gray-200 rounded-lg hover:bg-gray-50 transition-colors"
                >
                   View
-               </Link>
-               <Link
-                  href={`/edit-listing/${listing.id}`}
-                  className="flex-1 py-1.5 text-center text-xs font-medium text-gray-700 border border-gray-200 rounded-lg hover:bg-gray-50 transition-colors"
-               >
-                  Edit
                </Link>
             </div>
          </div>
