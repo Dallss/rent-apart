@@ -1,10 +1,14 @@
 import type { NextRequest } from "next/server";
 import { NextResponse } from "next/server";
 
-const PROTECTED_ROUTES = ["/become-a-host", "/manage-listings", "/onboarding"];
+const PROTECTED_ROUTES = [
+   "/become-a-host",
+   "/manage-listings",
+   "/onboarding",
+];
 
-function hasAuthCookie(request: NextRequest): boolean {
-   return Boolean(request.cookies.get("access_token")?.value);
+function isAuthenticated(request: NextRequest): boolean {
+   return request.cookies.get("authenticated")?.value === "true";
 }
 
 export function proxy(request: NextRequest) {
@@ -14,11 +18,14 @@ export function proxy(request: NextRequest) {
       (route) => pathname === route || pathname.startsWith(`${route}/`),
    );
 
-   if (!requiresAuth || hasAuthCookie(request)) return NextResponse.next();
+   if (!requiresAuth || isAuthenticated(request)) {
+      return NextResponse.next();
+   }
 
    const url = request.nextUrl.clone();
    url.pathname = "/";
    url.searchParams.set("auth", "required");
+
    return NextResponse.redirect(url);
 }
 

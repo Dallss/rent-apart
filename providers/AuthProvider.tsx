@@ -8,6 +8,8 @@ import {
    likeListingApi,
    unlikeListingApi,
    type AuthProfile,
+   setServerSession,
+   deleteServerSession,
 } from "@/lib/auth";
 import {
    createContext,
@@ -78,6 +80,8 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
          try {
             await postGoogleIdToken(credential);
             const nextProfile = await getCurrentSession();
+            await setServerSession();
+
             setProfile(nextProfile);
             setShowAuthModal(false);
             setReady(true);
@@ -131,6 +135,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
    const signOut = useCallback(async () => {
       try {
          await logout();
+         await deleteServerSession();
       } catch {
          // clear local auth state even if the logout request fails
       }

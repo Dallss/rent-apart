@@ -221,3 +221,26 @@ export async function submitOnboarding(
 
    return JSON.parse(text) as OnboardingResponse;
 }
+
+
+export async function setServerSession(): Promise<void> {
+   const response = await fetch("/api/auth/session", {
+      method: "POST",
+      credentials: "include",
+   });
+
+   if (!response.ok) {
+      throw new Error("Failed to set session");
+   }
+}
+
+export async function deleteServerSession(): Promise<void> {
+   const response = await fetch("/api/auth/session", {
+      method: "DELETE",
+      credentials: "include",
+   });
+
+   if (!response.ok) {
+      throw new Error("Failed to delete session");
+   }
+}

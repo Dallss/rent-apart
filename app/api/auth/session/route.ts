@@ -1,19 +1,10 @@
 import { cookies } from "next/headers";
 import { NextResponse } from "next/server";
 
-export async function POST(request: Request) {
-  const { access, refresh } = await request.json();
-
+export async function POST() {
   const cookieStore = await cookies();
 
-  cookieStore.set("access_token", access, {
-    httpOnly: true,
-    secure: process.env.NODE_ENV === "production",
-    sameSite: "lax",
-    path: "/",
-  });
-
-  cookieStore.set("refresh_token", refresh, {
+  cookieStore.set("authenticated", "true", {
     httpOnly: true,
     secure: process.env.NODE_ENV === "production",
     sameSite: "lax",
@@ -26,8 +17,7 @@ export async function POST(request: Request) {
 export async function DELETE() {
   const cookieStore = await cookies();
 
-  cookieStore.delete("access_token");
-  cookieStore.delete("refresh_token");
+  cookieStore.delete("authenticated");
 
   return NextResponse.json({ success: true });
 }
