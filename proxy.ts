@@ -31,10 +31,14 @@ export function proxy(request: NextRequest) {
    return NextResponse.redirect(url);
 }
 
+// export const config = {
+//    matcher: [
+//       "/become-a-host/:path*",
+//       "/manage-listings/:path*",
+//       "/onboarding/:path*",
+//    ],
+// };
+
 export const config = {
-   matcher: [
-      "/become-a-host/:path*",
-      "/manage-listings/:path*",
-      "/onboarding/:path*",
-   ],
+   matcher: [],
 };
