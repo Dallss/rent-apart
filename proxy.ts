@@ -18,7 +18,7 @@ export function proxy(request: NextRequest) {
    //    (route) => pathname === route || pathname.startsWith(`${route}/`),
    // );
 
-   const requiresAuth = true;
+   const requiresAuth = false;
 
    if (!requiresAuth || isAuthenticated(request)) {
       return NextResponse.next();
