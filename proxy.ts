@@ -12,11 +12,13 @@ function isAuthenticated(request: NextRequest): boolean {
 }
 
 export function proxy(request: NextRequest) {
-   const { pathname } = request.nextUrl;
+   // const { pathname } = request.nextUrl;
 
-   const requiresAuth = PROTECTED_ROUTES.some(
-      (route) => pathname === route || pathname.startsWith(`${route}/`),
-   );
+   // const requiresAuth = PROTECTED_ROUTES.some(
+   //    (route) => pathname === route || pathname.startsWith(`${route}/`),
+   // );
+
+   const requiresAuth = true;
 
    if (!requiresAuth || isAuthenticated(request)) {
       return NextResponse.next();
