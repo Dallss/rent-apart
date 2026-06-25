@@ -112,12 +112,12 @@ export function NavBar() {
    const clientId = getGoogleClientId();
    const pathname = usePathname();
 
-   useEffect(() => {
-      if (!ready || !isSignedIn) return;
-      if (needsOnboarding && pathname !== "/onboarding") {
-         router.replace("/onboarding");
-      }
-   }, [ready, isSignedIn, needsOnboarding, pathname, router]);
+   // useEffect(() => {
+   //    if (!ready || !isSignedIn) return;
+   //    if (needsOnboarding && pathname !== "/onboarding") {
+   //       router.replace("/onboarding");
+   //    }
+   // }, [ready, isSignedIn, needsOnboarding, pathname, router]);
 
    return (
       <div
