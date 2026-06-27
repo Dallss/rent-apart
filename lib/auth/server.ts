@@ -30,7 +30,12 @@ async function buildCookieHeader(): Promise<string> {
 }
 
 export async function getServerSessionProfile(): Promise<AuthProfile | null> {
+   const store = await cookies();
+   const all = store.getAll();
+   console.log("[server] all cookies:", all.map(c => c.name));
+   
    const cookieHeader = await buildCookieHeader();
+   console.log("[server] cookieHeader:", cookieHeader);
    if (!cookieHeader) return null;
 
    const res = await fetch(`${getBackendApiUrl()}/api/auth/me`, {
