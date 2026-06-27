@@ -3,7 +3,7 @@
 import { submitOnboarding } from "@/lib/auth";
 import { useAuth } from "@/providers/AuthProvider";
 import { useRouter } from "next/navigation";
-import { useEffect, useMemo, useState } from "react";
+import { useMemo, useState } from "react";
 
 type FormState = {
    displayName: string;
@@ -17,7 +17,7 @@ function normalizePhone(value: string): string {
 
 export default function OnboardingPage() {
    const router = useRouter();
-   const { ready, isSignedIn, needsOnboarding, profile, refreshSession } =
+   const { profile, refreshSession } =
       useAuth();
    const [displayName, setDisplayName] = useState("");
    const [birthday, setBirthday] = useState("");
@@ -63,17 +63,6 @@ export default function OnboardingPage() {
          setSubmitting(false);
       }
    };
-
-   useEffect(() => {
-      if (!ready) return;
-      if (!isSignedIn || !needsOnboarding) {
-         router.replace("/");
-      }
-   }, [ready, isSignedIn, needsOnboarding, router]);
-
-   if (!ready || !isSignedIn || !needsOnboarding) {
-      return null;
-   }
 
    return (
       <main className="min-h-screen bg-white px-4 py-16">

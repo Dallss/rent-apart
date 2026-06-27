@@ -58,8 +58,6 @@ export async function requireAuthenticatedUser(
    redirectTo = "/",
 ): Promise<AuthProfile> {
    const profile = await getServerSessionProfile();
-   console.log("DEBUG LOG BELOW");
-   console.log(profile);
    if (!profile) {
       redirect(redirectTo);
    }
