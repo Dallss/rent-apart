@@ -1,0 +1,15 @@
+name: Keep Backend Awake
+
+on:
+  schedule:
+    - cron: "*/10 * * * *"
+  workflow_dispatch:
+
+jobs:
+  ping:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Ping Render backend
+        run: |
+          curl -fsS --retry 3 --retry-delay 5 -o /dev/null -w "Status: %{http_code}\n" \
+            https://rentapart.onrender.com/api/docs/
